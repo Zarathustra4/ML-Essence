@@ -1,4 +1,5 @@
 import numpy as np
+from enum import Enum
 
 
 def fix_dims(vec: np.ndarray, axis=0):
@@ -15,7 +16,7 @@ class LossFunction:
     def __call__(self, prediction: np.ndarray, y: np.ndarray):
         return self.loss_function(prediction, y)
 
-    def gradient_values(self):
+    def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray, w, b):
         """
         :return: value of partial derivatives of loss function by W and b
         """
@@ -29,9 +30,15 @@ class MSE(LossFunction):
         m = diff.shape[1]
         return (1 / m) * (diff @ diff.T)[0, 0]
 
+    def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray, w, b):
+        x = fix_dims(x)
+        y = fix_dims(y)
+        prediction = fix_dims(prediction)
+        m = x.shape[1]
+        dw = np.sum((x * w + b - y) * x) * (2 / m)
+        db = np.sum(x * w + b - y) * (2 / m)
+        return dw, db
 
-if __name__ == "__main__":
-    mse = MSE()
-    y = np.array([1, 2, 3])
-    pred = np.array([2, 2, 1])
-    print(mse.loss_function(y, pred))
+
+class LossFunctions(Enum):
+    MEAN_SQUARED_ERROR = MSE()
