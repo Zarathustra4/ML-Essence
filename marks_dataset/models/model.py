@@ -7,3 +7,6 @@ class Model:
 
     def fit(self, x, y, epochs, loss, learning_rate):
         ...
+
+    def predict(self, x):
+        ...
