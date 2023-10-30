@@ -1,22 +1,21 @@
 import numpy as np
 
-from models.loss_functions import fix_dims, MSE, LossFunctions, LossFunction
+from models.loss_functions import fix_dims, LossFunctions, LossFunction
 from exceptions.exceptions import ModelParameterError
 from model import Model
 from plot import graph_plot
-from random import random
 
 
 class SimpleLinRegressor(Model):
-    def __init__(self, w=None, b=0):
-        self.w = random() if not w else w
-        self.b = b
+    def __init__(self, units=2):
+        self.w = np.random.rand(units, 1)
+        self.b = 0
         self.loss_functions = (LossFunctions.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
 
     def forward_prop(self, x):
         x = fix_dims(x)
-        return self.w * x + self.b
+        return self.w.T @ x + self.b
 
     def back_prop(self, x: np.ndarray,
                   y: np.ndarray,
@@ -37,7 +36,7 @@ class SimpleLinRegressor(Model):
         weight_lr = learning_rate
         bias_lr = learning_rate * 1e4  # bias requires larger learning rate
 
-        dw, db = loss_function.gradient_values(x, y, self.w, self.b)
+        dw, db = loss_function.gradient_values(x, y, prediction)
 
         return dw * weight_lr, db * bias_lr, loss_value
 
@@ -47,7 +46,7 @@ class SimpleLinRegressor(Model):
         for epoch in range(1, epochs):
             prediction = self.forward_prop(x)
             dw, db, loss_value = self.back_prop(x, y, prediction, loss, learning_rate)
-            self.w -= dw
+            self.w -= dw.T
             self.b -= db
             self.history[loss][epoch - 1] = loss_value
             print(f"[Epoch {epoch}]", end="\t")
@@ -61,15 +60,14 @@ class SimpleLinRegressor(Model):
 
 
 if __name__ == "__main__":
-    model = SimpleLinRegressor()
-    x_test = [i for i in range(1000)]
-    y_test = [num * 2 + 20 for num in x_test]
-    x_test = np.array(x_test)
+
+    x_test = [[i, i / 2, i / 3] for i in range(1000)]
+    y_test = [num[0] + 2 * num[1] - 1 for num in x_test]
+    x_test = np.array(x_test).T
     y_test = np.array(y_test)
 
-    history = model.fit(x_test, y_test, epochs=100, loss=LossFunctions.MEAN_SQUARED_ERROR, learning_rate=1e-7)
+    model = SimpleLinRegressor(units=3)
+
+    history = model.fit(x_test, y_test, epochs=150, loss=LossFunctions.MEAN_SQUARED_ERROR, learning_rate=1.5e-6)
     graph_plot.plot_history(history, LossFunctions.MEAN_SQUARED_ERROR)
 
-    test = [1, 3, 4]
-    print(model.predict(np.array(test)))
-    print(model.w, model.b)

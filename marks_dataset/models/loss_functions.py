@@ -16,7 +16,7 @@ class LossFunction:
     def __call__(self, prediction: np.ndarray, y: np.ndarray):
         return self.loss_function(prediction, y)
 
-    def gradient_values(self, x: np.ndarray, y: np.ndarray, w, b):
+    def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction):
         """
         :return: value of partial derivatives of loss function by W and b
         """
@@ -30,13 +30,15 @@ class MSE(LossFunction):
         m = diff.shape[1]
         return (1 / m) * (diff @ diff.T)[0, 0]
 
-    def gradient_values(self, x: np.ndarray, y: np.ndarray, w, b):
+    def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray):
         x = fix_dims(x)
         y = fix_dims(y)
         m = x.shape[1]
-        dw = np.sum((x * w + b - y) * x) * (2 / m)
-        db = np.sum(x * w + b - y) * (2 / m)
-        return dw, db
+        diff = prediction - y
+
+        dw = np.sum(diff * x, axis=1) * (2 / m)
+        db = np.sum(diff, axis=1) * (2 / m)
+        return fix_dims(dw), db
 
 
 class LossFunctions(Enum):
