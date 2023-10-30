@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 from models.loss_functions import fix_dims, MSE, LossFunctions, LossFunction
 from exceptions.exceptions import ModelParameterError
 from model import Model
@@ -62,12 +62,13 @@ class SimpleLinRegressor(Model):
 
 if __name__ == "__main__":
     model = SimpleLinRegressor()
-    x_test = [i for i in range(1000)]
-    y_test = [num * 2 + 20 for num in x_test]
+    df = pd.read_csv('datasets\winequality-red.csv', sep=';')
+    x_test = df['alcohol'].tolist()
+    y_test = df['quality'].tolist()
     x_test = np.array(x_test)
     y_test = np.array(y_test)
 
-    history = model.fit(x_test, y_test, epochs=100, loss=LossFunctions.MEAN_SQUARED_ERROR, learning_rate=1e-7)
+    history = model.fit(x_test, y_test, epochs=1000, loss=LossFunctions.MEAN_SQUARED_ERROR, learning_rate=1e-7)
     graph_plot.plot_history(history, LossFunctions.MEAN_SQUARED_ERROR)
 
     test = [1, 3, 4]
