@@ -1,9 +1,10 @@
 import numpy as np
 
-from models.loss_functions import fix_dims, LossFunctions, LossFunction
+from models.loss_functions import LossFunctions, LossFunction
 from exceptions.exceptions import ModelParameterError
 from model import Model
 from plot import graph_plot
+import pandas as pd
 
 
 class SimpleLinRegressor(Model):
@@ -14,8 +15,11 @@ class SimpleLinRegressor(Model):
         self.history = {}
 
     def forward_prop(self, x):
-        x = fix_dims(x)
-        return self.w.T @ x + self.b
+        if x.shape[1] != self.w.shape[0]:
+            raise ModelParameterError(
+                f"Shape of x input ({x.shape}) isn't supported by the model. Has to be (m, {self.w.shape[0]})"
+            )
+        return x @ self.w + self.b
 
     def back_prop(self, x: np.ndarray,
                   y: np.ndarray,
@@ -27,9 +31,11 @@ class SimpleLinRegressor(Model):
                 f"Wrong loss function is passed. Linear regressor supports only these - {self.loss_functions}"
             )
 
-        x = fix_dims(x)
-        y = fix_dims(y)
-        prediction = fix_dims(prediction)
+        if y.shape[1] != 1:
+            raise ModelParameterError(
+                f"Shape of y ({y.shape}) is not supported by the model. Has to be ({x.shape[0]}, 1))"
+            )
+
         loss_function: LossFunction = loss.value
         loss_value = loss_function(y, prediction)
 
@@ -41,6 +47,15 @@ class SimpleLinRegressor(Model):
         return dw * weight_lr, db * bias_lr, loss_value
 
     def fit(self, x: np.ndarray, y: np.ndarray, epochs: int, loss: LossFunctions, learning_rate=0.001):
+        if x.shape[1] != self.w.shape[0]:
+            raise ModelParameterError(
+                f"Shape of x input ({x.shape}) isn't supported by the model. Has to be (m, {self.w.shape[0]})"
+            )
+        if y.shape[1] != 1:
+            raise ModelParameterError(
+                f"Shape of y ({y.shape}) is not supported by the model. Has to be ({x.shape[0]}, 1))"
+            )
+
         self.history[loss] = [0] * epochs
 
         for epoch in range(1, epochs):
@@ -50,8 +65,8 @@ class SimpleLinRegressor(Model):
             self.b -= db
             self.history[loss][epoch - 1] = loss_value
             print(f"[Epoch {epoch}]", end="\t")
-            print(f"[Weight]-{self.w} | [Bias]-{self.b}")
-            print(f"[Loss ({loss.name})-{loss_value}]")
+            print(f"[Weight] - {self.w} | [Bias] - {self.b}")
+            print(f"[Loss ({loss.name}) - {loss_value}]\n")
 
         return self.history
 
@@ -60,14 +75,14 @@ class SimpleLinRegressor(Model):
 
 
 if __name__ == "__main__":
-
-    x_test = [[i, i / 2, i / 3] for i in range(1000)]
+    df = pd.read_csv("../datasets/winequality-red.csv", sep=";")
+    x_test = [[i, i / 2, i / 3] for i in range(100)]
     y_test = [num[0] + 2 * num[1] - 1 for num in x_test]
-    x_test = np.array(x_test).T
-    y_test = np.array(y_test)
+
+    x_test = np.array(x_test)
+    y_test = np.array(y_test, ndmin=2).T
 
     model = SimpleLinRegressor(units=3)
 
-    history = model.fit(x_test, y_test, epochs=150, loss=LossFunctions.MEAN_SQUARED_ERROR, learning_rate=1.5e-6)
+    history = model.fit(x_test, y_test, epochs=200, loss=LossFunctions.MEAN_SQUARED_ERROR, learning_rate=1e-6)
     graph_plot.plot_history(history, LossFunctions.MEAN_SQUARED_ERROR)
-

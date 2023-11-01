@@ -2,10 +2,6 @@ import numpy as np
 from enum import Enum
 
 
-def fix_dims(vec: np.ndarray, axis=0):
-    return np.expand_dims(vec, axis=axis) if len(vec.shape) == 1 else vec
-
-
 class LossFunction:
     def loss_function(self, prediction: np.ndarray, y: np.ndarray):
         """
@@ -25,20 +21,17 @@ class LossFunction:
 
 class MSE(LossFunction):
     def loss_function(self, prediction: np.ndarray, y: np.ndarray):
-        prediction = fix_dims(prediction)
         diff = prediction - y
         m = diff.shape[1]
         return (1 / m) * (diff @ diff.T)[0, 0]
 
     def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray):
-        x = fix_dims(x)
-        y = fix_dims(y)
         m = x.shape[1]
         diff = prediction - y
 
-        dw = np.sum(diff * x, axis=1) * (2 / m)
-        db = np.sum(diff, axis=1) * (2 / m)
-        return fix_dims(dw), db
+        dw = np.sum(diff * x, axis=0) * (2 / m)
+        db = np.sum(diff, axis=0) * (2 / m)
+        return dw[0], db[0]
 
 
 class LossFunctions(Enum):
