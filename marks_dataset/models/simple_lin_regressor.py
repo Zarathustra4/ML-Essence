@@ -75,7 +75,6 @@ class SimpleLinRegressor(Model):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("../datasets/winequality-red.csv", sep=";")
     x_test = [[i, i / 2, i / 3] for i in range(100)]
     y_test = [num[0] + 2 * num[1] - 1 for num in x_test]
 
