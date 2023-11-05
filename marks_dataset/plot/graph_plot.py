@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-from models.loss_functions import LossFunctions
 
 
-def plot_history(history, key=LossFunctions.MEAN_SQUARED_ERROR):
-    time = [i for i in range(len(history[key]))]
-    plt.plot(time, history[key])
+def plot_loss_history(history, loss_key="loss", val_loss_key="val_loss"):
+    time = [i for i in range(len(history[loss_key]))]
+    plt.plot(time, history[loss_key], 'b')
+    plt.plot(time, history[val_loss_key], 'r')
     plt.show()
