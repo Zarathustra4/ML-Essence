@@ -69,7 +69,6 @@ class SimpleLinRegressor(Model):
         print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
         print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
 
-
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
@@ -99,7 +98,7 @@ class SimpleLinRegressor(Model):
             train_prediction = self.forward_prop(x_train)
             dw, db, train_loss_value = self.back_prop(x_train, y_train, train_prediction, loss, learning_rate)
             val_loss_value = self._validate(x_valid, y_valid, loss.value)
-            self.w -= dw.T
+            self.w -= dw
             self.b -= db
             self.history["loss"][epoch - 1] = train_loss_value
             self.history["val_loss"][epoch - 1] = val_loss_value

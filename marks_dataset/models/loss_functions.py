@@ -31,7 +31,7 @@ class MSE(LossFunction):
 
         dw = np.sum(diff * x, axis=0) * (2 / m)
         db = np.sum(diff, axis=0) * (2 / m)
-        return dw[0], db[0]
+        return dw[0].T, db[0]
 
 
 class LossFunctionsEnum(Enum):
