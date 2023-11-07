@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 from models.loss_functions import LossFunctionsEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from model import Model
