@@ -15,7 +15,7 @@ class SimpleLinRegressor(Model):
         self.b = 1
         self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
-        self._val_types = {"regular": ds.RegularValidation(), "cross_val": ...}
+        self._val_types = {"regular": ds.RegularValidation(), "cross_val": ds.CrossValidation()}
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -84,3 +84,18 @@ class SimpleLinRegressor(Model):
 
     def predict(self, x: np.ndarray):
         return self.forward_prop(x)
+
+
+if __name__ == "__main__":
+    x_test = [[i, i / 2, i / 3] for i in range(1500)]
+    y_test = [num[0] + 2 * num[1] - 1 for num in x_test]
+
+    x_test = np.array(x_test)
+    y_test = np.array(y_test, ndmin=2).T
+
+    model = SimpleLinRegressor(units=3)
+
+    history = model.fit(x_test, y_test, epochs=500,
+                        loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
+                        learning_rate=1e-9, validation_type="cross_val")
+    graph_plot.plot_loss_history(history)

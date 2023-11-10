@@ -10,7 +10,7 @@ if __name__ == "__main__":
     y = np.expand_dims(y, axis=1)
 
     model = SimpleLinRegressor(units=11)
-    history = model.fit(x, y, epochs=200, learning_rate=1e-7, validation_part=0.2)
+    history = model.fit(x, y, epochs=1000, learning_rate=1e-9, validation_part=0.15, validation_type="cross_val")
     plot_loss_history(history)
 
     test_idx = random.randint(0, x.shape[0])

@@ -37,6 +37,23 @@ class RegularValidation(DataSplitter):
         for epoch in range(1, epochs + 1):
             yield x_train, x_valid, y_train, y_valid, epoch
 
+
 class CrossValidation(DataSplitter):
     def _train_val_set(self, x: np.ndarray, y: np.ndarray, validation_part: float, epochs: int):
-        ...
+        train_size = x.shape[0]
+        data_parts_number = int(1 / validation_part)
+        data_part_size = int(train_size * validation_part)
+
+        part = 0
+        for epoch in range(1, epochs + 1):
+            if part > data_parts_number:
+                part = 0
+            start_val_idx = part * data_part_size
+            end_val_idx = start_val_idx + data_part_size
+            x_valid = x[start_val_idx: end_val_idx, :]
+            y_valid = y[start_val_idx: end_val_idx, :]
+            x_train = np.concatenate((x[0: start_val_idx, :], x[end_val_idx:, :]), axis=0)
+            y_train = np.concatenate((y[0: start_val_idx, :], y[end_val_idx:, :]), axis=0)
+
+            part += 1
+            yield x_train, x_valid, y_train, y_valid, epoch
