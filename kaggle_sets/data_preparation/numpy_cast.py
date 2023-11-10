@@ -9,8 +9,8 @@ def cast_dataset_to_numpy(debug: bool = False) -> tuple:
     file = Path("./datasets/winequality-red.csv")
 
     dataframe = pd.read_csv(file, delimiter=';')
-    x = dataframe.drop("quality", axis=1) # <- Truncate 'quality' column
-    y = dataframe['quality'] # <- Move 'quality' to y instead
+    x = dataframe.drop("quality", axis=1)  # <- Truncate 'quality' column
+    y = dataframe['quality']  # <- Move 'quality' to y instead
 
     """ Convert dataframes to numpy arrays """
     x_np_array = x.to_numpy()
