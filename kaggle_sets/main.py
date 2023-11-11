@@ -1,6 +1,7 @@
 from data_preparation.numpy_cast import cast_dataset_to_numpy
 from models.simple_lin_regressor import SimpleLinRegressor
 from plot.graph_plot import plot_loss_history
+import models.datasplits as ds
 import numpy as np
 import random
 
@@ -10,7 +11,8 @@ if __name__ == "__main__":
     y = np.expand_dims(y, axis=1)
 
     model = SimpleLinRegressor(units=11)
-    history = model.fit(x, y, epochs=1000, learning_rate=1e-9, validation_part=0.15, validation_type="cross_val")
+    history = model.fit(x, y, epochs=500, learning_rate=1e-8, validation_part=0.2,
+                        validation_type=ds.ValDataSplitEnum.CROSS_VAL)
     plot_loss_history(history)
 
     test_idx = random.randint(0, x.shape[0])

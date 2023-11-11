@@ -1,6 +1,7 @@
 from functools import wraps
 
 from exceptions.exceptions import ModelParameterError
+import models.datasplits as ds
 
 
 def validate_input(func):
@@ -9,7 +10,7 @@ def validate_input(func):
         x = kwargs.get('x', None)
         y = kwargs.get('y', None)
         validation_part = kwargs.get('validation_part', 0.2)
-        validation_type = kwargs.get('validation_type', 'regular')
+        validation_type = kwargs.get('validation_type', ds.ValDataSplitEnum.REGULAR_VAL)
 
         if x is not None and x.shape[1] != self.w.shape[0]:
             raise ModelParameterError(

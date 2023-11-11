@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 from models.input_validator import validate_input
@@ -15,7 +17,8 @@ class SimpleLinRegressor(Model):
         self.b = 1
         self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
-        self._val_types = {"regular": ds.RegularValidation(), "cross_val": ds.CrossValidation()}
+        self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
+                           ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -64,7 +67,7 @@ class SimpleLinRegressor(Model):
             loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
             learning_rate=0.001,
             validation_part=0.2,
-            validation_type="regular"):
+            validation_type=ds.ValDataSplitEnum.REGULAR_VAL):
 
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
@@ -88,14 +91,14 @@ class SimpleLinRegressor(Model):
 
 if __name__ == "__main__":
     x_test = [[i, i / 2, i / 3] for i in range(1500)]
-    y_test = [num[0] + 2 * num[1] - 1 for num in x_test]
+    y_test = [num[0] + 2 * num[1] - 1 + random.random() * 10 for num in x_test]
 
     x_test = np.array(x_test)
     y_test = np.array(y_test, ndmin=2).T
 
     model = SimpleLinRegressor(units=3)
 
-    history = model.fit(x_test, y_test, epochs=500,
+    history = model.fit(x_test, y_test, epochs=50,
                         loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-                        learning_rate=1e-9, validation_type="cross_val")
+                        learning_rate=1e-9)
     graph_plot.plot_loss_history(history)

@@ -1,4 +1,5 @@
 import numpy as np
+from enum import Enum
 
 
 class DataSplitter:
@@ -44,6 +45,11 @@ class CrossValidation(DataSplitter):
         data_parts_number = int(1 / validation_part)
         data_part_size = int(train_size * validation_part)
 
+        data = np.concatenate((x, y), axis=1)
+        np.random.shuffle(data)
+        x = data[:, :-1]
+        y = data[:, -1:]
+
         part = 0
         for epoch in range(1, epochs + 1):
             if part > data_parts_number:
@@ -57,3 +63,8 @@ class CrossValidation(DataSplitter):
 
             part += 1
             yield x_train, x_valid, y_train, y_valid, epoch
+
+
+class ValDataSplitEnum(Enum):
+    REGULAR_VAL = RegularValidation()
+    CROSS_VAL = CrossValidation()
