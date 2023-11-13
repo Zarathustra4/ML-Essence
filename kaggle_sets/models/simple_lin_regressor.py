@@ -1,33 +1,24 @@
+import random
+
 import numpy as np
-import pandas as pd
+
+from models.input_validator import validate_input
 from models.loss_functions import LossFunctionsEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
-from model import Model
+from models.model import Model
+import models.datasplits as ds
 from plot import graph_plot
 
 
 class SimpleLinRegressor(Model):
     def __init__(self, units):
-        self.w = np.random.rand(units, 1)
-        self.b = 0
+        self.w = np.random.randn(units, 1)
+        # self.w = np.zeros((units, 1), float)
+        self.b = 1
         self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
-
-    def _split_data(self, x: np.ndarray, y: np.ndarray, validation_part: float):
-        data_size = x.shape[0]
-        train_size = int(data_size * 1 - validation_part)
-
-        data = np.concatenate((x, y), axis=1)
-        np.random.shuffle(data)
-        x = data[:, :-1]
-        y = data[:, -1:]
-
-        x_train = x[:train_size, :]
-        x_valid = x[train_size:, :]
-        y_train = y[:train_size, :]
-        y_valid = y[train_size:, :]
-
-        return x_train, x_valid, y_train, y_valid
+        self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
+                           ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -69,35 +60,23 @@ class SimpleLinRegressor(Model):
         print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
         print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
 
+    @validate_input
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
-            loss: LossFunctionsEnum,
+            loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
             learning_rate=0.001,
-            validation_part=0.2):
-        # TODO: write the decorator for the validations
-        if x.shape[1] != self.w.shape[0]:
-            raise ModelParameterError(
-                f"Shape of x input ({x.shape}) isn't supported by the model. Has to be (m, {self.w.shape[0]})"
-            )
-        if y.shape[1] != 1:
-            raise ModelParameterError(
-                f"Shape of y ({y.shape}) is not supported by the model. Has to be ({x.shape[0]}, 1))"
-            )
-        if validation_part > 1 or validation_part < 0:
-            raise ModelParameterError(
-                f"Validation part can not be more than 1 or less than 0"
-            )
-
-        x_train, x_valid, y_train, y_valid = self._split_data(x, y, validation_part)
+            validation_part=0.2,
+            validation_type=ds.ValDataSplitEnum.REGULAR_VAL):
 
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
+        data_split_func: ds.DataSplitter = self._val_types[validation_type]
 
-        for epoch in range(1, epochs):
+        for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
             train_prediction = self.forward_prop(x_train)
             dw, db, train_loss_value = self.back_prop(x_train, y_train, train_prediction, loss, learning_rate)
-            val_loss_value = self._validate(x_valid, y_valid, loss.value)
+            val_loss_value = self._validate(x_valid, y_valid, loss.value) if x_valid.shape[0] != 0 else 0
             self.w -= dw
             self.b -= db
             self.history["loss"][epoch - 1] = train_loss_value
@@ -111,13 +90,15 @@ class SimpleLinRegressor(Model):
 
 
 if __name__ == "__main__":
-    x_test = [[i, i / 2, i / 3] for i in range(100)]
-    y_test = [num[0] + 2 * num[1] - 1 for num in x_test]
+    x_test = [[i, i / 2, i / 3] for i in range(1500)]
+    y_test = [num[0] + 2 * num[1] - 1 + random.random() * 10 for num in x_test]
 
     x_test = np.array(x_test)
     y_test = np.array(y_test, ndmin=2).T
 
     model = SimpleLinRegressor(units=3)
 
-    history = model.fit(x_test, y_test, epochs=400, loss=LossFunctionsEnum.MEAN_SQUARED_ERROR, learning_rate=1e-7)
+    history = model.fit(x_test, y_test, epochs=50,
+                        loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
+                        learning_rate=1e-9)
     graph_plot.plot_loss_history(history)
