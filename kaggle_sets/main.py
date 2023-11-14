@@ -1,12 +1,13 @@
-from data_preparation.numpy_cast import cast_dataset_to_numpy
+from data_preparation.numpy_cast import DatasetToNumpy
 from models.simple_lin_regressor import SimpleLinRegressor
 from plot.graph_plot import plot_loss_history
 import models.datasplits as ds
 import numpy as np
 import random
 
+
 if __name__ == "__main__":
-    x, y = cast_dataset_to_numpy()
+    x, y = cast_dataset_to_numpy() # Change this =)
 
     y = np.expand_dims(y, axis=1)
 

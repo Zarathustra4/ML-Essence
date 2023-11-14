@@ -1,28 +1,32 @@
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 
-def cast_dataset_to_numpy(debug: bool = False) -> tuple:
-    """
-    Returns tuple of numpy arrays, x; y accordingly.
-    """
-    file = Path("./datasets/winequality-red.csv")
+"""
+    Usage:
+    dtnp = DatasetToNumpy("mosquito-indicator", ',')
+    x, y = dtnp(["date"], "mosquito_Indicator")
+"""
 
-    dataframe = pd.read_csv(file, delimiter=';')
-    x = dataframe.drop("quality", axis=1)  # <- Truncate 'quality' column
-    y = dataframe['quality']  # <- Move 'quality' to y instead
 
-    """ Convert dataframes to numpy arrays """
-    x_np_array = x.to_numpy()
-    y_np_array = y.to_numpy()
+class DatasetToNumpy:
+    def __init__(self, csv_file: str, csv_delimeter: str) -> None:
+        self.csv = Path(f"./datasets/{csv_file}.csv")
+        self.csv_delimeter = csv_delimeter
 
-    if debug:
-        """ Debug dataframe separation """
-        print(f"<Data> X (features):\n{x.head()}\n")
-        print(f"<Quality> Y (target):\n{y.head()}\n")
+    def __call__(self, drop_list: list, y_column: str) -> tuple:
+        return self._cast(drop_list, y_column)
+        
+    def _cast(self, drop_list: list, y_column: str) -> tuple:
+        dataframe = pd.read_csv(self.csv, delimiter=self.csv_delimeter)
 
-        """ Debug numpy cast """
-        print(f"<Data> X Numpy Array (features):\n{x_np_array[:5, :]}\n")
-        print(f"<Quality> Y Numpy Array (target):\n{y_np_array[:5]}\n")
+        drop_list.append(y_column)
+        x = dataframe.drop(drop_list, axis=1)
+        y = dataframe[y_column]
+        
+        np_x = x.to_numpy()
+        np_y = y.to_numpy()
+        np_y = np.expand_dims(y, axis=1)
 
-    return x_np_array, y_np_array
+        return (np_x, np_y)
