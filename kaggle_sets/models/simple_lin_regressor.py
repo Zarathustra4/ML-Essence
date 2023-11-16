@@ -1,4 +1,4 @@
-from abc import ABC
+import random
 
 import numpy as np
 
@@ -20,7 +20,7 @@ class SimpleLinRegressor(Model):
         self.history = {}
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
-        self.scalars: tuple[scal.DataScalar] = ...
+        self.scalars: list[scal.DataScalar] = []
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -62,6 +62,18 @@ class SimpleLinRegressor(Model):
         print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
         print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
 
+    def set_scale_data(self, data: np.ndarray):
+        data = np.array(data)
+        for i in range(len(self.scalars)):
+            self.scalars[i].set_values(data)
+            data = self.scalars[i](data)
+
+    def _scale_data(self, data: np.ndarray):
+        for scalar in self.scalars:
+            data = scalar(data)
+
+        return data
+
     @validate_input
     def fit(self, x: np.ndarray,
             y: np.ndarray,
@@ -69,10 +81,11 @@ class SimpleLinRegressor(Model):
             loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
             learning_rate=0.001,
             validation_part=0.2,
-            validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
-            scalars=()):
+            validation_type=ds.ValDataSplitEnum.REGULAR_VAL):
 
-        self.scalars = scalars
+        self.scalars = [scal.Normalizer(), scal.Standardizer()]
+        self.set_scale_data(x)
+        x = self._scale_data(x)
 
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
@@ -92,12 +105,17 @@ class SimpleLinRegressor(Model):
         return self.history
 
     def predict(self, x: np.ndarray):
+        x = self._scale_data(x)
         return self.forward_prop(x)
 
 
+def f(x):
+    return x[0] + 2 * x[1] - 3 * x[2]
+
+
 if __name__ == "__main__":
-    x = [[i, i / 2, i / 3] for i in range(1500)]
-    y = [num[0] + 2 * num[1] - 3 * num[2] for num in x]
+    x = [random.sample(range(-20, 20), 3) for i in range(3000)]
+    y = [f(num) for num in x]
 
     x = np.array(x)
     y = np.array(y, ndmin=2).T
@@ -106,14 +124,16 @@ if __name__ == "__main__":
 
     history = model.fit(x, y, epochs=1000,
                         loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-                        learning_rate=1e-4)
+                        learning_rate=1e-6)
     graph_plot.plot_loss_history(history)
 
-    test_x = np.array([1, 2, 3], ndmin=2)
-    test_y = np.array(1 + 4 - 9, ndmin=2)
+    from random import randint
+    for i in range(10):
+        test_x = np.array([randint(0, 10), randint(0, 10), randint(0, 10)], ndmin=2)
 
-    prediction = model.predict(test_x)
+        true_result = f(test_x[0])
+        prediction = model.predict(test_x)
 
-    print(prediction)
-    print(model.w)
-    print(model.b)
+        print(f"prediction - {prediction[0, 0]} | true result - {true_result}")
+        print("-" * 20)
+
