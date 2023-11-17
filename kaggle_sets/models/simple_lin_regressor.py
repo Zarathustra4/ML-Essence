@@ -7,6 +7,7 @@ from models.loss_functions import LossFunctionsEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
+from models.optimizers import SGD
 from plot import graph_plot
 
 
@@ -19,6 +20,7 @@ class SimpleLinRegressor(Model):
         self.history = {}
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
+        self.optimizer = SGD()
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -44,12 +46,9 @@ class SimpleLinRegressor(Model):
         loss_function: LossFunction = loss.value
         loss_value = loss_function(y, prediction)
 
-        weight_lr = learning_rate
-        bias_lr = learning_rate * 1e4  # bias requires larger learning rate
+        dw, db = self.optimizer.get_grad_values(x, y, prediction)
 
-        dw, db = loss_function.gradient_values(x, y, prediction)
-
-        return dw * weight_lr, db * bias_lr, loss_value
+        return dw, db, loss_value
 
     def _validate(self, x_valid: np.ndarray, y_valid: np.ndarray, loss: LossFunction):
         val_prediction = self.forward_prop(x_valid)
@@ -72,6 +71,7 @@ class SimpleLinRegressor(Model):
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
         data_split_func: ds.DataSplitter = self._val_types[validation_type]
+        self.optimizer.set_learning_rate(learning_rate)
 
         for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
             train_prediction = self.forward_prop(x_train)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     model = SimpleLinRegressor(units=3)
 
-    history = model.fit(x_test, y_test, epochs=50,
+    history = model.fit(x_test, y_test, epochs=100,
                         loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
                         learning_rate=1e-9)
     graph_plot.plot_loss_history(history)
