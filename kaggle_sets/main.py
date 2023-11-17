@@ -13,7 +13,7 @@ if __name__ == "__main__":
     print(y.shape)
 
     model = SimpleLinRegressor(units=4)
-    history = model.fit(x, y, epochs=200, learning_rate=1e-4, validation_part=0.2,
-                        validation_type=ds.ValDataSplitEnum.CROSS_VAL,
-                        scalars=(scal.Normalizer(),))
+    history = model.fit(x, y, epochs=300, learning_rate=1e-3, validation_part=0.2,
+                        validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
+                        scalars=(scal.Standardizer(), scal.Normalizer()))
     plot_loss_history(history)
