@@ -8,7 +8,7 @@ from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
 from plot import graph_plot
-import data_scalar as scal
+import models.data_scalar as scal
 
 
 class SimpleLinRegressor(Model):
@@ -81,9 +81,10 @@ class SimpleLinRegressor(Model):
             loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
             learning_rate=0.001,
             validation_part=0.2,
-            validation_type=ds.ValDataSplitEnum.REGULAR_VAL):
+            validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
+            scalars: tuple[scal.DataScalar] = None):
 
-        self.scalars = [scal.Normalizer(), scal.Standardizer()]
+        self.scalars = list(scalars) if scalars else []
         self.set_scale_data(x)
         x = self._scale_data(x)
 
@@ -124,7 +125,9 @@ if __name__ == "__main__":
 
     history = model.fit(x, y, epochs=1000,
                         loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-                        learning_rate=1e-6)
+                        learning_rate=1e-6,
+                        scalars=(scal.Normalizer(), scal.Standardizer()))
+
     graph_plot.plot_loss_history(history)
 
     from random import randint

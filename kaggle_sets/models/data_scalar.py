@@ -1,8 +1,8 @@
 import numpy as np
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 
-class DataScalar:
+class DataScalar(ABC):
 
     def __init__(self, array=np.array([])):
         if array:
