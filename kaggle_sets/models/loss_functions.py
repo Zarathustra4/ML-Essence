@@ -1,8 +1,11 @@
+from abc import abstractmethod
+
 import numpy as np
 from enum import Enum
 
 
 class LossFunction:
+    @abstractmethod
     def loss_function(self, prediction: np.ndarray, y: np.ndarray):
         """
         :return: value of loss function
@@ -12,6 +15,7 @@ class LossFunction:
     def __call__(self, prediction: np.ndarray, y: np.ndarray):
         return self.loss_function(prediction, y)
 
+    @abstractmethod
     def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction):
         """
         :return: value of partial derivatives of loss function by W and b

@@ -1,8 +1,11 @@
+from abc import abstractmethod
+
 import numpy as np
 from enum import Enum
 
 
 class DataSplitter:
+    @abstractmethod
     def _train_val_set(self, x: np.ndarray, y: np.ndarray, validation_part: float, epochs: int):
         ...
 

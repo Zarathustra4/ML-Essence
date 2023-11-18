@@ -29,4 +29,4 @@ class DatasetToNumpy:
         np_y = y.to_numpy()
         np_y = np.expand_dims(y, axis=1)
 
-        return (np_x, np_y)
+        return np_x, np_y
