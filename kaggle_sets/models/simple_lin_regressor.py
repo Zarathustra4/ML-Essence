@@ -14,7 +14,6 @@ from plot import graph_plot
 class SimpleLinRegressor(Model):
     def __init__(self, units):
         self.w = np.random.randn(units, 1)
-        # self.w = np.zeros((units, 1), float)
         self.b = 1
         self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}

@@ -6,7 +6,7 @@ from models.loss_functions import LossFunctionsEnum
 class SGD:
     def __init__(self, loss: LossFunctionsEnum = LossFunctionsEnum.MEAN_SQUARED_ERROR,
                  learning_rate: float = 1e-4,
-                 batch_size: int = 500):
+                 batch_size: int = 200):
         self.loss = loss.value
         self.lr = learning_rate
         self.batch_size = batch_size
