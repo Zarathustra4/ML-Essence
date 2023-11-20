@@ -1,7 +1,10 @@
+from abc import ABC, abstractmethod
+
 import numpy as np
 
 
-class Model:
+class Model(ABC):
+    @abstractmethod
     def forward_prop(self, x):
         """
         Returns predicted data
@@ -10,6 +13,7 @@ class Model:
         """
         ...
 
+    @abstractmethod
     def back_prop(self, x, y, prediction, loss, learning_rate):
         """
         Optimizes model's parameters
@@ -22,7 +26,8 @@ class Model:
         """
         ...
 
-    def fit(self, x, y, epochs, loss, learning_rate):
+    @abstractmethod
+    def fit(self, x, y, epochs, loss, learning_rate, validation_part, validation_type, scalars):
         """
         Fits model to the train data
         :param x: np.ndarray - train input data
@@ -30,25 +35,19 @@ class Model:
         :param epochs: number of epochs
         :param loss: LossFunctionsEnum - enum of loss functions
         :param learning_rate: float
+        :param validation_part: float
+        :param validation_type: ds.ValTypeEnum
+        :param scalars tuple of scalars
         :return: dict - history of training
         """
         ...
 
+    @abstractmethod
     def predict(self, x):
         """
         Predicts the value
         :param x: numpy.ndarray - training data
         :return: numpy.ndarray - predicted data
-        """
-        ...
-
-    def _split_data(self, x: np.ndarray, y: np.ndarray, validation_part: float) -> tuple:
-        """
-        Splits the data into train and validation sets
-        :param x: np.ndarray - train input data
-        :param y: np.ndarray - train output data
-        :param validation_part: float
-        :return: (x_train, x_test, y_train, y_test)
         """
         ...
 

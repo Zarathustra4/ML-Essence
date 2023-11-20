@@ -9,6 +9,7 @@ from models.model import Model
 import models.datasplits as ds
 from models.optimizers import SGD
 from plot import graph_plot
+import models.data_scalar as scal
 
 
 class SimpleLinRegressor(Model):
@@ -19,6 +20,7 @@ class SimpleLinRegressor(Model):
         self.history = {}
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
+        self.scalars: list[scal.DataScalar] = []
         self.optimizer = SGD()
 
     def forward_prop(self, x):
@@ -58,6 +60,18 @@ class SimpleLinRegressor(Model):
         print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
         print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
 
+    def set_scale_data(self, data: np.ndarray):
+        data = np.array(data)
+        for i in range(len(self.scalars)):
+            self.scalars[i].set_values(data)
+            data = self.scalars[i](data)
+
+    def _scale_data(self, data: np.ndarray):
+        for scalar in self.scalars:
+            data = scalar(data)
+
+        return data
+
     @validate_input
     def fit(self, x: np.ndarray,
             y: np.ndarray,
@@ -65,7 +79,12 @@ class SimpleLinRegressor(Model):
             loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
             learning_rate=0.001,
             validation_part=0.2,
-            validation_type=ds.ValDataSplitEnum.REGULAR_VAL):
+            validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
+            scalars: tuple[scal.DataScalar] = None):
+
+        self.scalars = list(scalars) if scalars else []
+        self.set_scale_data(x)
+        x = self._scale_data(x)
 
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
@@ -73,6 +92,7 @@ class SimpleLinRegressor(Model):
         self.optimizer.set_learning_rate(learning_rate)
 
         for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
+            # TODO: split this into functions
             train_prediction = self.forward_prop(x_train)
             dw, db, train_loss_value = self.back_prop(x_train, y_train, train_prediction, loss, learning_rate)
             val_loss_value = self._validate(x_valid, y_valid, loss.value) if x_valid.shape[0] != 0 else 0
@@ -85,19 +105,37 @@ class SimpleLinRegressor(Model):
         return self.history
 
     def predict(self, x: np.ndarray):
+        x = self._scale_data(x)
         return self.forward_prop(x)
 
 
-if __name__ == "__main__":
-    x_test = [[i, i / 2, i / 3] for i in range(1500)]
-    y_test = [num[0] + 2 * num[1] - 1 + random.random() * 10 for num in x_test]
+def f(x):
+    return x[0] + 2 * x[1] - 3 * x[2]
 
-    x_test = np.array(x_test)
-    y_test = np.array(y_test, ndmin=2).T
+
+if __name__ == "__main__":
+    x = [random.sample(range(-20, 20), 3) for i in range(3000)]
+    y = [f(num) for num in x]
+
+    x = np.array(x)
+    y = np.array(y, ndmin=2).T
 
     model = SimpleLinRegressor(units=3)
 
-    history = model.fit(x_test, y_test, epochs=100,
+    history = model.fit(x, y, epochs=1000,
                         loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-                        learning_rate=1e-9)
+                        learning_rate=1e-6,
+                        scalars=(scal.Normalizer(), scal.Standardizer()))
+
     graph_plot.plot_loss_history(history)
+
+    from random import randint
+    for i in range(10):
+        test_x = np.array([randint(0, 10), randint(0, 10), randint(0, 10)], ndmin=2)
+
+        true_result = f(test_x[0])
+        prediction = model.predict(test_x)
+
+        print(f"prediction - {prediction[0, 0]} | true result - {true_result}")
+        print("-" * 20)
+
