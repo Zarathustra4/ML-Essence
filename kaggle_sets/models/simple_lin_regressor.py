@@ -21,7 +21,7 @@ class SimpleLinRegressor(Model):
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
         self.scalars: list[scal.DataScalar] = []
-        self.optimizer = GradientDescent()
+        self.optimizer = SGD()
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:

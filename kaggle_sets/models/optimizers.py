@@ -1,10 +1,22 @@
+from abc import ABC, abstractmethod
+
 import numpy as np
 
 from models.loss_functions import LossFunctionsEnum
 from models.model import Model
 
 
-class GradientDescent:
+class Optimizer(ABC):
+    @abstractmethod
+    def optimize(self, x: np.ndarray, y: np.ndarray, model: Model):
+        ...
+
+    @abstractmethod
+    def set_learning_rate(self, learning_rate: float):
+        ...
+
+
+class GradientDescent(Optimizer):
     def __init__(self, loss: LossFunctionsEnum = LossFunctionsEnum.MEAN_SQUARED_ERROR,
                  learning_rate: float = 1e-8):
         self.loss = loss
@@ -20,23 +32,29 @@ class GradientDescent:
         self.lr = learning_rate
 
 
-class SGD:
+class SGD(Optimizer):
     def __init__(self, loss: LossFunctionsEnum = LossFunctionsEnum.MEAN_SQUARED_ERROR,
                  learning_rate: float = 1e-4,
                  batch_size: int = 200):
-        self.loss = loss.value
+        self.loss: LossFunctionsEnum = loss
         self.lr = learning_rate
         self.batch_size = batch_size
 
     def optimize(self, x: np.ndarray, y: np.ndarray, model: Model):
         train_size = x.shape[0]
+        permutation = np.random.permutation(train_size)
+        x = x[permutation]
+        y = y[permutation]
+
         for i in range(0, train_size, self.batch_size):
             x_batch = x[i: i + self.batch_size]
-            y_batch = x[i: i + self.batch_size]
-
+            y_batch = y[i: i + self.batch_size]
             prediction = model.forward_prop(x_batch)
-            dw, db = self.loss.gradient_values(x_batch, y_batch, prediction)
-            model.update_parameters(dw * self.lr, db * self.lr)
+            dw, db, _ = model.back_prop(x_batch, y_batch, prediction, self.loss, self.lr)
+            model.update_parameters(dw, db)
+
+        return self.loss.value(model.forward_prop(x), y)
+
 
     def get_grad_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray) -> tuple:
         train_size = x.shape[0]
