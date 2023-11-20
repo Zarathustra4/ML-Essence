@@ -25,9 +25,7 @@ class LossFunction:
 
 class MSE(LossFunction):
     def loss_function(self, prediction: np.ndarray, y: np.ndarray):
-        diff = prediction - y
-        m = diff.shape[1]
-        return (1 / m) * (diff @ diff.T)[0, 0]
+        return np.square(prediction - y).mean(axis=0)[0]
 
     def gradient_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray):
         m = x.shape[1]
