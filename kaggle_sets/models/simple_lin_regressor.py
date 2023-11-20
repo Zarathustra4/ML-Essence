@@ -7,7 +7,7 @@ from models.loss_functions import LossFunctionsEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
-from models.optimizers import SGD
+from models.optimizers import SGD, GradientDescent
 from plot import graph_plot
 import models.data_scalar as scal
 
@@ -21,7 +21,7 @@ class SimpleLinRegressor(Model):
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
         self.scalars: list[scal.DataScalar] = []
-        self.optimizer = SGD()
+        self.optimizer = GradientDescent()
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -47,9 +47,9 @@ class SimpleLinRegressor(Model):
         loss_function: LossFunction = loss.value
         loss_value = loss_function(y, prediction)
 
-        dw, db = self.optimizer.get_grad_values(x, y, prediction)
+        dw, db = loss_function.gradient_values(x, y, prediction)
 
-        return dw, db, loss_value
+        return dw * learning_rate, db * learning_rate, loss_value
 
     def _validate(self, x_valid: np.ndarray, y_valid: np.ndarray, loss: LossFunction):
         val_prediction = self.forward_prop(x_valid)
@@ -72,6 +72,10 @@ class SimpleLinRegressor(Model):
 
         return data
 
+    def update_parameters(self, dw: np.ndarray, db: float):
+        self.w -= dw
+        self.b -= db
+
     @validate_input
     def fit(self, x: np.ndarray,
             y: np.ndarray,
@@ -92,12 +96,8 @@ class SimpleLinRegressor(Model):
         self.optimizer.set_learning_rate(learning_rate)
 
         for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
-            # TODO: split this into functions
-            train_prediction = self.forward_prop(x_train)
-            dw, db, train_loss_value = self.back_prop(x_train, y_train, train_prediction, loss, learning_rate)
-            val_loss_value = self._validate(x_valid, y_valid, loss.value) if x_valid.shape[0] != 0 else 0
-            self.w -= dw
-            self.b -= db
+            train_loss_value = self.optimizer.optimize(x_train, y_train, self)
+            val_loss_value = self._validate(x_valid, y_valid, loss.value)
             self.history["loss"][epoch - 1] = train_loss_value
             self.history["val_loss"][epoch - 1] = val_loss_value
             self.print_fit_progress(epoch, loss.name)
