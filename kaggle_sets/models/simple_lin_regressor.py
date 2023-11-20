@@ -7,13 +7,13 @@ from models.loss_functions import LossFunctionsEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
-from models.optimizers import SGD, GradientDescent
+from models.optimizers import SGD, GradientDescent, Optimizer
 from plot import graph_plot
 import models.data_scalar as scal
 
 
 class SimpleLinRegressor(Model):
-    def __init__(self, units):
+    def __init__(self, units, optimizer=SGD()):
         self.w = np.random.randn(units, 1)
         self.b = 1
         self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
@@ -21,7 +21,7 @@ class SimpleLinRegressor(Model):
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
         self.scalars: list[scal.DataScalar] = []
-        self.optimizer = SGD()
+        self.optimizer: Optimizer = optimizer
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -81,7 +81,6 @@ class SimpleLinRegressor(Model):
             y: np.ndarray,
             epochs: int,
             loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-            learning_rate=0.001,
             validation_part=0.2,
             validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
             scalars: tuple[scal.DataScalar] = None):
@@ -93,13 +92,14 @@ class SimpleLinRegressor(Model):
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
         data_split_func: ds.DataSplitter = self._val_types[validation_type]
-        self.optimizer.set_learning_rate(learning_rate)
 
         for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
             train_loss_value = self.optimizer.optimize(x_train, y_train, self)
             val_loss_value = self._validate(x_valid, y_valid, loss.value)
+
             self.history["loss"][epoch - 1] = train_loss_value
             self.history["val_loss"][epoch - 1] = val_loss_value
+
             self.print_fit_progress(epoch, loss.name)
 
         return self.history
@@ -130,6 +130,7 @@ if __name__ == "__main__":
     graph_plot.plot_loss_history(history)
 
     from random import randint
+
     for i in range(10):
         test_x = np.array([randint(0, 10), randint(0, 10), randint(0, 10)], ndmin=2)
 
@@ -138,4 +139,3 @@ if __name__ == "__main__":
 
         print(f"prediction - {prediction[0, 0]} | true result - {true_result}")
         print("-" * 20)
-

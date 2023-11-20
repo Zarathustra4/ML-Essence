@@ -14,7 +14,6 @@ def validate_input(func):
                 y: np.ndarray,
                 epochs: int,
                 loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-                learning_rate=0.001,
                 validation_part=0.2,
                 validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
                 scalars: tuple[scal.DataScalar] = None):
@@ -36,6 +35,6 @@ def validate_input(func):
                 f"Impossible value for validation_type - {validation_type}. Possible values - {self.__val_types}"
             )
 
-        return func(self, x, y, epochs, loss, learning_rate, validation_part, validation_type, scalars)
+        return func(self, x, y, epochs, loss, validation_part, validation_type, scalars)
 
     return wrapper

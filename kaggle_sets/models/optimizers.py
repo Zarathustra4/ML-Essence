@@ -11,10 +11,6 @@ class Optimizer(ABC):
     def optimize(self, x: np.ndarray, y: np.ndarray, model: Model):
         ...
 
-    @abstractmethod
-    def set_learning_rate(self, learning_rate: float):
-        ...
-
 
 class GradientDescent(Optimizer):
     def __init__(self, loss: LossFunctionsEnum = LossFunctionsEnum.MEAN_SQUARED_ERROR,
@@ -27,9 +23,6 @@ class GradientDescent(Optimizer):
         dw, db, train_loss_value = model.back_prop(x, y, prediction, self.loss, self.lr)
         model.update_parameters(dw, db)
         return train_loss_value
-
-    def set_learning_rate(self, learning_rate: float):
-        self.lr = learning_rate
 
 
 class SGD(Optimizer):
@@ -55,24 +48,3 @@ class SGD(Optimizer):
 
         return self.loss.value(model.forward_prop(x), y)
 
-
-    def get_grad_values(self, x: np.ndarray, y: np.ndarray, prediction: np.ndarray) -> tuple:
-        train_size = x.shape[0]
-        stochastic_dw = 0
-        stochastic_db = 0
-        count = 1
-
-        for i in range(0, train_size, self.batch_size):
-            x_batch = x[i: i + self.batch_size]
-            y_batch = y[i: i + self.batch_size]
-            pred_batch = prediction[i: i + self.batch_size]
-
-            dw, db = self.loss.gradient_values(x_batch, y_batch, pred_batch)
-            stochastic_dw += dw * self.lr
-            stochastic_db += db * self.lr
-            count += 1
-
-        return stochastic_dw / count, stochastic_db / count
-
-    def set_learning_rate(self, learning_rate: float):
-        self.lr = learning_rate
