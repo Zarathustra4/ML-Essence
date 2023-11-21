@@ -7,20 +7,21 @@ from models.loss_functions import LossFunctionsEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
+from models.optimizers import SGD, GradientDescent, Optimizer
 from plot import graph_plot
 import models.data_scalar as scal
 
 
 class SimpleLinRegressor(Model):
-    def __init__(self, units):
+    def __init__(self, units, optimizer=SGD()):
         self.w = np.random.randn(units, 1)
-        # self.w = np.zeros((units, 1), float)
         self.b = 1
         self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
         self.scalars: list[scal.DataScalar] = []
+        self.optimizer: Optimizer = optimizer
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -46,12 +47,9 @@ class SimpleLinRegressor(Model):
         loss_function: LossFunction = loss.value
         loss_value = loss_function(y, prediction)
 
-        weight_lr = learning_rate
-        bias_lr = learning_rate
-
         dw, db = loss_function.gradient_values(x, y, prediction)
 
-        return dw * weight_lr, db * bias_lr, loss_value
+        return dw * learning_rate, db * learning_rate, loss_value
 
     def _validate(self, x_valid: np.ndarray, y_valid: np.ndarray, loss: LossFunction):
         val_prediction = self.forward_prop(x_valid)
@@ -74,12 +72,15 @@ class SimpleLinRegressor(Model):
 
         return data
 
+    def update_parameters(self, dw: np.ndarray, db: float):
+        self.w -= dw
+        self.b -= db
+
     @validate_input
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
             loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
-            learning_rate=0.001,
             validation_part=0.2,
             validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
             scalars: tuple[scal.DataScalar] = None):
@@ -93,14 +94,12 @@ class SimpleLinRegressor(Model):
         data_split_func: ds.DataSplitter = self._val_types[validation_type]
 
         for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
-            # TODO: split this into functions
-            train_prediction = self.forward_prop(x_train)
-            dw, db, train_loss_value = self.back_prop(x_train, y_train, train_prediction, loss, learning_rate)
-            val_loss_value = self._validate(x_valid, y_valid, loss.value) if x_valid.shape[0] != 0 else 0
-            self.w -= dw
-            self.b -= db
+            train_loss_value = self.optimizer.optimize(x_train, y_train, self)
+            val_loss_value = self._validate(x_valid, y_valid, loss.value)
+
             self.history["loss"][epoch - 1] = train_loss_value
             self.history["val_loss"][epoch - 1] = val_loss_value
+
             self.print_fit_progress(epoch, loss.name)
 
         return self.history
@@ -131,6 +130,7 @@ if __name__ == "__main__":
     graph_plot.plot_loss_history(history)
 
     from random import randint
+
     for i in range(10):
         test_x = np.array([randint(0, 10), randint(0, 10), randint(0, 10)], ndmin=2)
 
@@ -139,4 +139,3 @@ if __name__ == "__main__":
 
         print(f"prediction - {prediction[0, 0]} | true result - {true_result}")
         print("-" * 20)
-

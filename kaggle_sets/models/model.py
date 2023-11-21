@@ -51,4 +51,13 @@ class Model(ABC):
         """
         ...
 
+    @abstractmethod
+    def update_parameters(self, dw: np.ndarray, db: float):
+        """
+        Optimizes the parameters of model
+        :param dw: derivative by weights
+        :param db: derivative by bias
+        :return:
+        """
+
 
