@@ -12,7 +12,7 @@ Usage:
 
 class DatasetToNumpy:
     def __init__(self, csv_file: str, csv_delimeter: str) -> None:
-        self.csv = Path(f"C:/Users/User/Documents/GitHub/ML-Essence/kaggle_sets/datasets/{csv_file}.csv")
+        self.csv = Path(f"./datasets/{csv_file}.csv")
         self.csv_delimeter = csv_delimeter
 
     def __call__(self, drop_list: list, y_column: str, test_size: float = 0.2, random_seed: int = 42) -> tuple:
@@ -41,15 +41,4 @@ class DatasetToNumpy:
         return (train_x, train_y), (test_x, test_y)
 
 
-dtnp = DatasetToNumpy("mosquito-indicator", ',')
-(train_x, train_y), (test_x, test_y) = dtnp(["date"], "mosquito_Indicator")
-print("Training set shapes:", train_x.shape, train_y.shape)
-print("Testing set shapes:", test_x.shape, test_y.shape)
 
-print("\nSample training data:")
-print("X:", train_x[:5])
-print("Y:", train_y[:5])
-
-print("\nSample testing data:")
-print("X:", test_x[:5])
-print("Y:", test_y[:5])
