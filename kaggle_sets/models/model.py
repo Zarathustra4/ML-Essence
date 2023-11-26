@@ -20,7 +20,7 @@ class Model(ABC):
         :param x: np.ndarray - train input data
         :param y: np.ndarray - train output data
         :param prediction: np.ndarray - predicted value
-        :param loss: LossFunctionsEnum - enum of loss functions
+        :param loss_enum: LossEnum - enum of loss functions
         :param learning_rate: float
         :return: (dw, db, loss_value)
         """
@@ -33,7 +33,7 @@ class Model(ABC):
         :param x: np.ndarray - train input data
         :param y: np.ndarray - train output data
         :param epochs: number of epochs
-        :param loss: LossFunctionsEnum - enum of loss functions
+        :param loss_enum: LossEnum - enum of loss functions
         :param learning_rate: float
         :param validation_part: float
         :param validation_type: ds.ValTypeEnum

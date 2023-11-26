@@ -36,5 +36,5 @@ class MSE(LossFunction):
         return dw[0].T, db[0]
 
 
-class LossFunctionsEnum(Enum):
+class LossEnum(Enum):
     MEAN_SQUARED_ERROR = MSE()

@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 from models.input_validator import validate_input
-from models.loss_functions import LossFunctionsEnum, LossFunction
+from models.loss_functions import LossEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
@@ -16,7 +16,7 @@ class SimpleLinRegressor(Model):
     def __init__(self, units, optimizer=SGD()):
         self.w = np.random.randn(units, 1)
         self.b = 1
-        self.loss_functions = (LossFunctionsEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
+        self.loss_functions = (LossEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
         self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
@@ -33,9 +33,9 @@ class SimpleLinRegressor(Model):
     def back_prop(self, x: np.ndarray,
                   y: np.ndarray,
                   prediction: np.ndarray,
-                  loss: LossFunctionsEnum,
+                  loss_enum: LossEnum,
                   learning_rate=0.001):
-        if loss not in self.loss_functions:
+        if loss_enum not in self.loss_functions:
             raise ModelParameterError(
                 f"Wrong loss function is passed. Linear regressor supports only these - {self.loss_functions}"
             )
@@ -44,7 +44,7 @@ class SimpleLinRegressor(Model):
                 f"Shape of y ({y.shape}) is not supported by the model. Has to be ({x.shape[0]}, 1))"
             )
 
-        loss_function: LossFunction = loss.value
+        loss_function: LossFunction = loss_enum.value
         loss_value = loss_function(y, prediction)
 
         dw, db = loss_function.gradient_values(x, y, prediction)
@@ -80,7 +80,7 @@ class SimpleLinRegressor(Model):
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
-            loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
+            loss=LossEnum.MEAN_SQUARED_ERROR,
             validation_part=0.2,
             validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
             scalars: tuple[scal.DataScalar] = None):
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     model = SimpleLinRegressor(units=3)
 
     history = model.fit(x, y, epochs=1000,
-                        loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
+                        loss=LossEnum.MEAN_SQUARED_ERROR,
                         learning_rate=1e-6,
                         scalars=(scal.Normalizer(), scal.Standardizer()))
 
