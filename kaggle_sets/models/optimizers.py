@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from models.loss_functions import LossFunctionsEnum
+from models.loss_functions import LossFunctionsEnum, LossFunction
 from models.model import Model
 
 
@@ -11,9 +11,13 @@ class Optimizer(ABC):
     def optimize(self, x: np.ndarray, y: np.ndarray, model: Model):
         ...
 
+    @abstractmethod
+    def get_learning_rate(self) -> float:
+        ...
+
 
 class GradientDescent(Optimizer):
-    def __init__(self, loss: LossFunctionsEnum = LossFunctionsEnum.MEAN_SQUARED_ERROR,
+    def __init__(self, loss: LossFunction,
                  learning_rate: float = 1e-8):
         self.loss = loss
         self.lr = learning_rate
@@ -24,12 +28,15 @@ class GradientDescent(Optimizer):
         model.update_parameters(dw, db)
         return train_loss_value
 
+    def get_learning_rate(self) -> float:
+        return self.lr
+
 
 class SGD(Optimizer):
-    def __init__(self, loss: LossFunctionsEnum = LossFunctionsEnum.MEAN_SQUARED_ERROR,
+    def __init__(self, loss: LossFunction,
                  learning_rate: float = 1e-4,
-                 batch_size: int = 200):
-        self.loss: LossFunctionsEnum = loss
+                 batch_size: int = 100):
+        self.loss: LossFunction = loss
         self.lr = learning_rate
         self.batch_size = batch_size
 
@@ -42,9 +49,11 @@ class SGD(Optimizer):
         for i in range(0, train_size, self.batch_size):
             x_batch = x[i: i + self.batch_size]
             y_batch = y[i: i + self.batch_size]
-            prediction = model.forward_prop(x_batch)
-            dw, db, _ = model.back_prop(x_batch, y_batch, prediction, self.loss, self.lr)
+            prediction, linear_part = model.forward_prop(x_batch)
+            dw, db, _ = model.back_prop(x_batch, y_batch, prediction, self.loss, self.lr, linear_part)
             model.update_parameters(dw, db)
 
-        return self.loss.value(model.forward_prop(x), y)
+        return self.loss(model.forward_prop(x), y)
 
+    def get_learning_rate(self) -> float:
+        return self.lr

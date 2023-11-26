@@ -26,7 +26,6 @@ class DatasetToNumpy:
         y = dataframe[y_column]
         
         np_x = x.to_numpy()
-        np_y = y.to_numpy()
         np_y = np.expand_dims(y, axis=1)
 
         return np_x, np_y
