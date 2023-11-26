@@ -1,4 +1,4 @@
-from data_preparation.train_test_split import DatasetToNumpy
+from data_preparation.dataset_to_numpy import DatasetToNumpy
 from models.optimizers import SGD
 from models.simple_lin_regressor import SimpleLinRegressor
 from plot.graph_plot import plot_loss_history
