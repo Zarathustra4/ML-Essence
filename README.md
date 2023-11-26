@@ -27,6 +27,6 @@ Check `requirements.txt`
 </pre>
 
 # Data analysis:
-- <a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/wine_analisys.ipynb">Wine Dataset</a>
+<a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/wine_analisys.ipynb">Wine Dataset</a>
 <br>
-- <a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/mosquito_analisys.ipynb">Mosquito Dataset</a>
+<a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/mosquito_analisys.ipynb">Mosquito Dataset</a>
