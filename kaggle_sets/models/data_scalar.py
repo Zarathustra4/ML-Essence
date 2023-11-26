@@ -47,7 +47,7 @@ class Standardizer(DataScalar):
 
     def set_values(self, array: np.ndarray):
         self._mean_values = array.mean(axis=0)
-        self._std_values = array.mean(axis=0)
+        self._std_values = array.std(axis=0)
 
     def _scale(self, array: np.ndarray):
         return (array - self._mean_values) / self._std_values

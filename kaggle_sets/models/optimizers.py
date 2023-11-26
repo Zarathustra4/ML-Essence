@@ -49,8 +49,8 @@ class SGD(Optimizer):
         for i in range(0, train_size, self.batch_size):
             x_batch = x[i: i + self.batch_size]
             y_batch = y[i: i + self.batch_size]
-            prediction, linear_part = model.forward_prop(x_batch)
-            dw, db, _ = model.back_prop(x_batch, y_batch, prediction, self.loss, self.lr, linear_part)
+            prediction = model.forward_prop(x_batch)
+            dw, db, _ = model.back_prop(x_batch, y_batch, prediction, self.loss, self.lr)
             model.update_parameters(dw, db)
 
         return self.loss(model.forward_prop(x), y)

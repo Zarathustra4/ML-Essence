@@ -1,6 +1,8 @@
 import numpy as np
 
+from models.input_validator import validate_input
 from models.loss_functions import LossFunctionsEnum, LossFunction, CrossEntropy
+from models.model import Model
 from models.optimizers import SGD, Optimizer
 import models.datasplits as ds
 from activations import ActivationFunction, Sigmoid
@@ -9,7 +11,7 @@ from plot.graph_plot import plot_loss_history
 
 
 # TODO: proper inheritance from Model
-class Classifier:
+class Classifier(Model):
     def __init__(self, units: int, activation=Sigmoid(),
                  optimizer: Optimizer = SGD(loss=CrossEntropy()), data_scalars: tuple = ()):
         self.w: np.ndarray = np.random.randn(units, 1)
@@ -21,18 +23,16 @@ class Classifier:
         self.optimizer: Optimizer = optimizer
 
     def forward_prop(self, x: np.ndarray):
-        linear_part = x @ self.w + self.b
-        return self.activation(linear_part), linear_part
+        return self.activation(x @ self.w + self.b)
 
     def back_prop(self, x: np.ndarray,
                   y: np.ndarray,
                   prediction: np.ndarray,
                   loss: LossFunction,
-                  learning_rate: float,
-                  linear_part: np.ndarray):
+                  learning_rate: float):
 
-        loss_value = loss(y, prediction)
-        dw, db = loss.gradient_values(x, y, prediction, linear_part=linear_part)
+        loss_value = loss(prediction, y)
+        dw, db = loss.gradient_values(x, y, prediction)
 
         return dw * learning_rate, db * learning_rate, loss_value
 
@@ -52,13 +52,18 @@ class Classifier:
         return data
 
     def _validate(self, x_valid: np.ndarray, y_valid: np.ndarray, loss: LossFunction):
-        val_prediction, _ = self.forward_prop(x_valid)
+        val_prediction = self.forward_prop(x_valid)
         return loss(val_prediction, y_valid)
 
     def print_fit_progress(self, epoch: int, loss_name: str):
         print(f"[Epoch {epoch}]", end="\t")
         print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
         print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
+
+    def predict(self, x):
+        x = self._scale_data(x)
+        return self.forward_prop(x)
+
 
     def fit(self, x: np.ndarray,
             y: np.ndarray,
@@ -85,19 +90,29 @@ class Classifier:
 
 
 if __name__ == "__main__":
-    x = [[-i, i, i ** 2] for i in range(-500, 500)]
+    from random import randint
+    x = [[randint(-10, 10), randint(-10, 10), randint(-10, 10)] for i in range(-500, 500)]
     y = [0] * 1000
     for i in range(1000):
-        y[i] = 1 if sum(x[i]) % 2 == 0 else 0
+        y[i] = 1 if sum(x[i]) > 0 else 0
 
     x = np.array(x)
     y = np.array(y, ndmin=2).T
 
-    print(x.shape)
-    print(y.shape)
-
-    model = Classifier(3, optimizer=SGD(loss=CrossEntropy()),
-                       data_scalars=(scal.Normalizer(),))
-    history = model.fit(x, y, 300, CrossEntropy())
+    model = Classifier(3, optimizer=SGD(loss=CrossEntropy(), learning_rate=1e-3))
+    history = model.fit(x, y, 250, CrossEntropy(), validation_part=0.2)
 
     plot_loss_history(history)
+
+    test_x = np.array([[-1, -2, 1],
+                       [2, 2, 2],
+                       [3, 5, 3],
+                       [4, 0, -4],
+                       [5, 3, 5]])
+
+    print(model.predict(test_x))
+
+    print("params")
+    print(model.w)
+    print(model.b)
+
