@@ -2,18 +2,16 @@ import random
 
 import numpy as np
 
-from models.input_validator import validate_input
 from models.loss_functions import LossEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
 from models.optimizers import SGD, Optimizer
-from plot import graph_plot
 import models.data_scalar as scal
 
 
 class SimpleLinRegressor(Model):
-    def __init__(self, units, optimizer=SGD()):
+    def __init__(self, units, optimizer=SGD(loss_enum=LossEnum.MEAN_SQUARED_ERROR), data_scalars: tuple = ()):
         self.w = np.random.randn(units, 1)
         self.b = 1
         self.loss_functions = (LossEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
@@ -22,6 +20,7 @@ class SimpleLinRegressor(Model):
                            ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
         self.scalars: list[scal.DataScalar] = []
         self.optimizer: Optimizer = optimizer
+        self.scalars: list[scal.DataScalar] = list(data_scalars)
 
     def forward_prop(self, x):
         if x.shape[1] != self.w.shape[0]:
@@ -76,24 +75,21 @@ class SimpleLinRegressor(Model):
         self.w -= dw
         self.b -= db
 
-    @validate_input
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
-            loss=LossEnum.MEAN_SQUARED_ERROR,
-            validation_part=0.2,
-            validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
-            scalars: tuple[scal.DataScalar] = None):
+            validation_part: float = 0.2,
+            validation_splitter: ds.DataSplitter = ds.RegularValidation()):
 
-        self.scalars = list(scalars) if scalars else []
+        loss = self.optimizer.get_loss_enum()
+
         self.set_scale_data(x)
         x = self._scale_data(x)
 
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
-        data_split_func: ds.DataSplitter = self._val_types[validation_type]
 
-        for x_train, x_valid, y_train, y_valid, epoch in data_split_func(x, y, validation_part, epochs):
+        for x_train, x_valid, y_train, y_valid, epoch in validation_splitter(x, y, validation_part, epochs):
             train_loss_value = self.optimizer.optimize(x_train, y_train, self)
             val_loss_value = self._validate(x_valid, y_valid, loss.value)
 
@@ -107,35 +103,3 @@ class SimpleLinRegressor(Model):
     def predict(self, x: np.ndarray):
         x = self._scale_data(x)
         return self.forward_prop(x)
-
-
-def f(x):
-    return x[0] + 2 * x[1] - 3 * x[2]
-
-
-if __name__ == "__main__":
-    x = [random.sample(range(-20, 20), 3) for i in range(3000)]
-    y = [f(num) for num in x]
-
-    x = np.array(x)
-    y = np.array(y, ndmin=2).T
-
-    model = SimpleLinRegressor(units=3)
-
-    history = model.fit(x, y, epochs=1000,
-                        loss=LossEnum.MEAN_SQUARED_ERROR,
-                        learning_rate=1e-6,
-                        scalars=(scal.Normalizer(), scal.Standardizer()))
-
-    graph_plot.plot_loss_history(history)
-
-    from random import randint
-
-    for i in range(10):
-        test_x = np.array([randint(0, 10), randint(0, 10), randint(0, 10)], ndmin=2)
-
-        true_result = f(test_x[0])
-        prediction = model.predict(test_x)
-
-        print(f"prediction - {prediction[0, 0]} | true result - {true_result}")
-        print("-" * 20)

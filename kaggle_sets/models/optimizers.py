@@ -15,6 +15,10 @@ class Optimizer(ABC):
     def get_learning_rate(self) -> float:
         ...
 
+    @abstractmethod
+    def get_loss_enum(self) -> LossEnum:
+        ...
+
 
 class GradientDescent(Optimizer):
     def __init__(self, loss_enum: LossEnum = LossEnum.MEAN_SQUARED_ERROR,
@@ -31,9 +35,12 @@ class GradientDescent(Optimizer):
     def get_learning_rate(self) -> float:
         return self.lr
 
+    def get_loss_enum(self) -> LossEnum:
+        return self.loss_enum
+
 
 class SGD(Optimizer):
-    def __init__(self, loss_enum: LossEnum = LossEnum.MEAN_SQUARED_ERROR,
+    def __init__(self, loss_enum: LossEnum,
                  learning_rate: float = 1e-4,
                  batch_size: int = 200):
         self.loss_enum: LossEnum = loss_enum
@@ -57,3 +64,6 @@ class SGD(Optimizer):
 
     def get_learning_rate(self) -> float:
         return self.lr
+
+    def get_loss_enum(self) -> LossEnum:
+        return self.loss_enum

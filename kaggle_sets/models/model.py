@@ -14,7 +14,7 @@ class Model(ABC):
         ...
 
     @abstractmethod
-    def back_prop(self, x, y, prediction, loss, learning_rate):
+    def back_prop(self, x, y, prediction, loss_enum, learning_rate):
         """
         Optimizes model's parameters
         :param x: np.ndarray - train input data
@@ -27,13 +27,12 @@ class Model(ABC):
         ...
 
     @abstractmethod
-    def fit(self, x, y, epochs, loss, validation_part, validation_splitter):
+    def fit(self, x, y, epochs, validation_part, validation_splitter):
         """
         Fits model to the train data
         :param x: np.ndarray - train input data
         :param y: np.ndarray - train output data
         :param epochs: number of epochs
-        :param loss_enum: LossEnum - enum of loss functions
         :param validation_part: float
         :param validation_splitter: DataSplitter - object, which split data onto train and validation
         :return: dict - history of training
