@@ -1,5 +1,6 @@
 import numpy as np
 
+from exceptions.exceptions import ModelParameterError
 from models.loss_functions import LossEnum, LossFunction, CrossEntropy
 from models.model import Model
 from models.optimizers import SGD, Optimizer
@@ -21,14 +22,27 @@ class Classifier(Model):
         self.optimizer: Optimizer = optimizer
 
     def forward_prop(self, x: np.ndarray):
+        if x.shape[1] != self.w.shape[0]:
+            raise ModelParameterError(
+                f"Shape of x input ({x.shape}) isn't supported by the model. Has to be (m, {self.w.shape[0]})"
+            )
         return self.activation(x @ self.w + self.b)
 
     def back_prop(self, x: np.ndarray,
                   y: np.ndarray,
                   prediction: np.ndarray,
-                  loss: LossFunction,
+                  loss_enum: LossEnum,
                   learning_rate: float):
+        if loss_enum not in self.loss_functions:
+            raise ModelParameterError(
+                f"Wrong loss function is passed. Linear regressor supports only these - {self.loss_functions}"
+            )
+        if y.shape[1] != 1:
+            raise ModelParameterError(
+                f"Shape of y ({y.shape}) is not supported by the model. Has to be ({x.shape[0]}, 1))"
+            )
 
+        loss = loss_enum.value
         loss_value = loss(prediction, y)
         dw, db = loss.gradient_values(x, y, prediction)
 
@@ -65,9 +79,10 @@ class Classifier(Model):
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
-            loss: LossFunction,
             validation_part: float = 0.2,
             validation_splitter: ds.DataSplitter = ds.RegularValidation()):
+        loss = self.optimizer.get_loss_enum()
+
         self._set_scale_data(x)
         x = self._scale_data(x)
 
@@ -76,7 +91,7 @@ class Classifier(Model):
 
         for x_train, x_valid, y_train, y_valid, epoch in validation_splitter(x, y, validation_part, epochs):
             train_loss_value = self.optimizer.optimize(x_train, y_train, self)
-            val_loss_value = self._validate(x_valid, y_valid, loss)
+            val_loss_value = self._validate(x_valid, y_valid, loss.value)
 
             self.history["loss"][epoch - 1] = train_loss_value
             self.history["val_loss"][epoch - 1] = val_loss_value
@@ -99,7 +114,7 @@ if __name__ == "__main__":
 
     model = Classifier(3, optimizer=SGD(loss_enum=LossEnum.CROSS_ENTROPY, learning_rate=1e-2),
                        data_scalars=(scal.Standardizer(),))
-    history = model.fit(x, y, 250, CrossEntropy(), validation_part=0.2)
+    history = model.fit(x, y, epochs=100)
 
     plot_loss_history(history)
 
