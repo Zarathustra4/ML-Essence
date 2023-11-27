@@ -64,7 +64,6 @@ class Classifier(Model):
         x = self._scale_data(x)
         return self.forward_prop(x)
 
-
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
@@ -91,6 +90,7 @@ class Classifier(Model):
 
 if __name__ == "__main__":
     from random import randint
+
     x = [[randint(-10, 10), randint(-10, 10), randint(-10, 10)] for i in range(-500, 500)]
     y = [0] * 1000
     for i in range(1000):
@@ -99,7 +99,8 @@ if __name__ == "__main__":
     x = np.array(x)
     y = np.array(y, ndmin=2).T
 
-    model = Classifier(3, optimizer=SGD(loss=CrossEntropy(), learning_rate=1e-3))
+    model = Classifier(3, optimizer=SGD(loss=CrossEntropy(), learning_rate=1e-2),
+                       data_scalars=(scal.Standardizer(),))
     history = model.fit(x, y, 250, CrossEntropy(), validation_part=0.2)
 
     plot_loss_history(history)
@@ -115,4 +116,3 @@ if __name__ == "__main__":
     print("params")
     print(model.w)
     print(model.b)
-

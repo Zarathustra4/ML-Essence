@@ -27,17 +27,15 @@ class Model(ABC):
         ...
 
     @abstractmethod
-    def fit(self, x, y, epochs, loss, learning_rate, validation_part, validation_type, scalars):
+    def fit(self, x, y, epochs, loss, validation_part, validation_splitter):
         """
         Fits model to the train data
         :param x: np.ndarray - train input data
         :param y: np.ndarray - train output data
         :param epochs: number of epochs
         :param loss: LossFunctionsEnum - enum of loss functions
-        :param learning_rate: float
         :param validation_part: float
-        :param validation_type: ds.ValTypeEnum
-        :param scalars tuple of scalars
+        :param validation_splitter: DataSplitter - object, which split data onto train and validation
         :return: dict - history of training
         """
         ...
