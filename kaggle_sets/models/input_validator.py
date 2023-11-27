@@ -4,7 +4,7 @@ from exceptions.exceptions import ModelParameterError
 import models.datasplits as ds
 import numpy as np
 
-from models.loss_functions import LossFunctionsEnum
+from models.loss_functions import LossEnum
 import models.data_scalar as scal
 
 
@@ -13,7 +13,7 @@ def validate_input(func):
     def wrapper(self, x: np.ndarray,
                 y: np.ndarray,
                 epochs: int,
-                loss=LossFunctionsEnum.MEAN_SQUARED_ERROR,
+                loss_enum=LossEnum.MEAN_SQUARED_ERROR,
                 validation_part=0.2,
                 validation_type=ds.ValDataSplitEnum.REGULAR_VAL,
                 scalars: tuple[scal.DataScalar] = None):
@@ -35,6 +35,6 @@ def validate_input(func):
                 f"Impossible value for validation_type - {validation_type}. Possible values - {self.__val_types}"
             )
 
-        return func(self, x, y, epochs, loss, validation_part, validation_type, scalars)
+        return func(self, x, y, epochs, loss_enum, validation_part, validation_type, scalars)
 
     return wrapper

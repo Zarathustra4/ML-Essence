@@ -61,6 +61,6 @@ class CrossEntropy(LossFunction):
         return dw, db
 
 
-class LossFunctionsEnum(Enum):
+class LossEnum(Enum):
     MEAN_SQUARED_ERROR = MSE()
     CROSS_ENTROPY = CrossEntropy()
