@@ -1,7 +1,7 @@
 import numpy as np
 
 from exceptions.exceptions import ModelParameterError
-from models.loss_functions import LossEnum, LossFunction, CrossEntropy
+from models.loss_functions import LossEnum, LossFunction
 from models.model import Model
 from models.optimizers import SGD, Optimizer
 import models.datasplits as ds
@@ -10,7 +10,7 @@ import models.data_scalar as scal
 from plot.graph_plot import plot_loss_history
 
 
-class Classifier(Model):
+class BinaryClassifier(Model):
     def __init__(self, units: int, activation=Sigmoid(),
                  optimizer: Optimizer = SGD(loss_enum=LossEnum.CROSS_ENTROPY), data_scalars: tuple = ()):
         self.w: np.ndarray = np.random.randn(units, 1)
@@ -112,8 +112,8 @@ if __name__ == "__main__":
     x = np.array(x)
     y = np.array(y, ndmin=2).T
 
-    model = Classifier(3, optimizer=SGD(loss_enum=LossEnum.CROSS_ENTROPY, learning_rate=1e-2),
-                       data_scalars=(scal.Standardizer(),))
+    model = BinaryClassifier(3, optimizer=SGD(loss_enum=LossEnum.CROSS_ENTROPY, learning_rate=1e-2),
+                             data_scalars=(scal.Standardizer(),))
     history = model.fit(x, y, epochs=100)
 
     plot_loss_history(history)
