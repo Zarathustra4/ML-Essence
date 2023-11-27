@@ -1,7 +1,6 @@
 import numpy as np
 
-from models.input_validator import validate_input
-from models.loss_functions import LossFunctionsEnum, LossFunction, CrossEntropy
+from models.loss_functions import LossEnum, LossFunction, CrossEntropy
 from models.model import Model
 from models.optimizers import SGD, Optimizer
 import models.datasplits as ds
@@ -10,14 +9,13 @@ import models.data_scalar as scal
 from plot.graph_plot import plot_loss_history
 
 
-# TODO: proper inheritance from Model
 class Classifier(Model):
     def __init__(self, units: int, activation=Sigmoid(),
-                 optimizer: Optimizer = SGD(loss=CrossEntropy()), data_scalars: tuple = ()):
+                 optimizer: Optimizer = SGD(loss_enum=LossEnum.CROSS_ENTROPY), data_scalars: tuple = ()):
         self.w: np.ndarray = np.random.randn(units, 1)
         self.b: float = 1.
         self.activation: ActivationFunction = activation
-        self.loss_functions: tuple[LossFunction] = (CrossEntropy(),)
+        self.loss_functions: tuple[LossEnum] = (LossEnum.CROSS_ENTROPY, )
         self.history: dict = {}
         self.scalars: list[scal.DataScalar] = list(data_scalars)
         self.optimizer: Optimizer = optimizer
@@ -99,7 +97,7 @@ if __name__ == "__main__":
     x = np.array(x)
     y = np.array(y, ndmin=2).T
 
-    model = Classifier(3, optimizer=SGD(loss=CrossEntropy(), learning_rate=1e-2),
+    model = Classifier(3, optimizer=SGD(loss_enum=LossEnum.CROSS_ENTROPY, learning_rate=1e-2),
                        data_scalars=(scal.Standardizer(),))
     history = model.fit(x, y, 250, CrossEntropy(), validation_part=0.2)
 

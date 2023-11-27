@@ -7,7 +7,7 @@ from models.loss_functions import LossEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
 from models.model import Model
 import models.datasplits as ds
-from models.optimizers import SGD, GradientDescent, Optimizer
+from models.optimizers import SGD, Optimizer
 from plot import graph_plot
 import models.data_scalar as scal
 
