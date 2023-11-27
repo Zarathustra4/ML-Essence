@@ -48,7 +48,7 @@ class CrossEntropy(LossFunction):
         self.sigmoid = Sigmoid()
 
     def loss_function(self, prediction: np.ndarray, y: np.ndarray):
-        m = prediction.shape[0]
+        m = prediction.shape[0] or 1  # to avoid zero division
         summation_matrix = y * np.log(prediction) + (1 - y) * np.log(1 - prediction)
         return -1 / m * np.sum(summation_matrix, axis=0)
 
