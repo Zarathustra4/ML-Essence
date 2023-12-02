@@ -11,6 +11,14 @@ class Optimizer(ABC):
     def optimize(self, x: np.ndarray, y: np.ndarray, model: Model):
         ...
 
+    @abstractmethod
+    def get_learning_rate(self) -> float:
+        ...
+
+    @abstractmethod
+    def get_loss_enum(self) -> LossEnum:
+        ...
+
 
 class GradientDescent(Optimizer):
     def __init__(self, loss_enum: LossEnum = LossEnum.MEAN_SQUARED_ERROR,
@@ -24,9 +32,15 @@ class GradientDescent(Optimizer):
         model.update_parameters(dw, db)
         return train_loss_value
 
+    def get_learning_rate(self) -> float:
+        return self.lr
+
+    def get_loss_enum(self) -> LossEnum:
+        return self.loss_enum
+
 
 class SGD(Optimizer):
-    def __init__(self, loss_enum: LossEnum = LossEnum.MEAN_SQUARED_ERROR,
+    def __init__(self, loss_enum: LossEnum,
                  learning_rate: float = 1e-4,
                  batch_size: int = 200):
         self.loss_enum: LossEnum = loss_enum
@@ -48,3 +62,8 @@ class SGD(Optimizer):
 
         return self.loss_enum.value(model.forward_prop(x), y)
 
+    def get_learning_rate(self) -> float:
+        return self.lr
+
+    def get_loss_enum(self) -> LossEnum:
+        return self.loss_enum
