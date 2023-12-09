@@ -1,0 +1,7 @@
+
+kaggle_sets/data_analisys/.ipynb_checkpoints/mosquito_analisys-checkpoint.ipynb
+kaggle_sets/data_analisys/.ipynb_checkpoints/water-analisys-checkpoint.ipynb
+kaggle_sets/data_analisys/.ipynb_checkpoints/wine_analisys-checkpoint.ipynb
+*.xml
+.idea/ML-Essence.iml
+kaggle_sets/datasets/.ipynb_checkpoints/mosquito-indicator-checkpoint.csv
