@@ -1,13 +1,11 @@
-import random
-
 import numpy as np
 
-from models.loss_functions import LossEnum, LossFunction
+from processing.functions.loss_functions import LossEnum, LossFunction
 from exceptions.exceptions import ModelParameterError
-from models.model import Model
-import models.datasplits as ds
-from models.optimizers import SGD, Optimizer
-import models.data_scalar as scal
+from processing.models.model import Model
+import processing.preprocessing.datasplits as ds
+from processing.models.optimizers import SGD, Optimizer
+import processing.preprocessing.data_scalar as scal
 
 
 class SimpleLinRegressor(Model):
@@ -79,7 +77,8 @@ class SimpleLinRegressor(Model):
             y: np.ndarray,
             epochs: int,
             validation_part: float = 0.2,
-            validation_splitter: ds.DataSplitter = ds.RegularValidation()):
+            validation_splitter: ds.DataSplitter = ds.RegularValidation(),
+            metrics: tuple = ()):
 
         loss = self.optimizer.get_loss_enum()
 

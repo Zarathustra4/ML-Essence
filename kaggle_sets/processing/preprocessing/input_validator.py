@@ -1,11 +1,11 @@
 from functools import wraps
 
 from exceptions.exceptions import ModelParameterError
-import models.datasplits as ds
+import processing.preprocessing.datasplits as ds
 import numpy as np
 
-from models.loss_functions import LossEnum
-import models.data_scalar as scal
+from processing.functions.loss_functions import LossEnum
+import processing.preprocessing.data_scalar as scal
 
 
 def validate_input(func):
