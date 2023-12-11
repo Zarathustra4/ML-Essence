@@ -31,7 +31,7 @@ class MAE(Metric):
 class Accuracy(Metric):
     """ Accuracy Metric"""
     def _metric(self, prediction: np.ndarray, y: np.ndarray):
-        correct_predictions = np.abs(prediction == y)
+        correct_predictions = np.sum(prediction.round() == y)
         total_predictions = len(y)
         accuracy = correct_predictions / total_predictions if total_predictions > 0 else 0.0
         return accuracy
@@ -40,10 +40,9 @@ class Accuracy(Metric):
 class R2(Metric):
     """ R Squared Metric """
     def _metric(self, prediction: np.ndarray, y: np.ndarray):
-        mean_y = np.mean(y)
-        ss_total = np.abs((y - mean_y) ** 2)
-        ss_residual = np.abs((y - prediction) ** 2)
-        r2 = 1 - (ss_residual / ss_total) if ss_total != 0 else 0.0
+        SS_res = np.sum(np.square(y - prediction))
+        SS_tot = np.sum(np.square(y - np.mean(y)))
+        r2 = 1 - SS_res / (SS_tot + np.finfo(float).eps)
         return r2
 
 

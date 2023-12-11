@@ -1,13 +1,12 @@
 import numpy as np
 
 from exceptions.exceptions import ModelParameterError
-from models.loss_functions import LossEnum, LossFunction
-from models.model import Model
-from models.optimizers import SGD, Optimizer
-import models.datasplits as ds
-from activations import ActivationFunction, Sigmoid
-import models.data_scalar as scal
-from plot.graph_plot import plot_loss_history
+from processing.functions.loss_functions import LossEnum, LossFunction
+from processing.models.model import Model
+from processing.models.optimizers import SGD, Optimizer
+import processing.preprocessing.datasplits as ds
+from processing.functions.activations import ActivationFunction, Sigmoid
+import processing.preprocessing.data_scalar as scal
 
 
 class BinaryClassifier(Model):
@@ -99,33 +98,3 @@ class BinaryClassifier(Model):
             self.print_fit_progress(epoch, loss.__class__.__name__)
 
         return self.history
-
-
-if __name__ == "__main__":
-    from random import randint
-
-    x = [[randint(-10, 10), randint(-10, 10), randint(-10, 10)] for i in range(-500, 500)]
-    y = [0] * 1000
-    for i in range(1000):
-        y[i] = 1 if sum(x[i]) > 0 else 0
-
-    x = np.array(x)
-    y = np.array(y, ndmin=2).T
-
-    model = BinaryClassifier(3, optimizer=SGD(loss_enum=LossEnum.CROSS_ENTROPY, learning_rate=1e-2),
-                             data_scalars=(scal.Standardizer(),))
-    history = model.fit(x, y, epochs=100)
-
-    plot_loss_history(history)
-
-    test_x = np.array([[-1, -2, 1],
-                       [2, 2, 2],
-                       [3, 5, 3],
-                       [4, 0, -4],
-                       [5, 3, 5]])
-
-    print(model.predict(test_x))
-
-    print("params")
-    print(model.w)
-    print(model.b)

@@ -23,16 +23,12 @@ class RegularValidation(DataSplitter):
             :param validation_part: float
             :return: (x_train, x_test, y_train, y_test)
         """
-        data_size = x.shape[0]
-        train_size = int(data_size * 1 - validation_part)
-        data = np.concatenate((x, y), axis=1)
-        np.random.shuffle(data)
-        x = data[:, :-1]
-        y = data[:, -1:]
-        x_train = x[:train_size, :]
-        x_valid = x[train_size:, :]
-        y_train = y[:train_size, :]
-        y_valid = y[train_size:, :]
+        indices = np.random.permutation(len(x))
+        test_size = int(len(x) * validation_part)
+
+        train_indices, test_indices = indices[test_size:], indices[:test_size]
+        x_train, x_valid = x[train_indices], x[test_indices]
+        y_train, y_valid = y[train_indices], y[test_indices]
         return x_train, x_valid, y_train, y_valid
 
     def _train_val_set(self, x: np.ndarray, y: np.ndarray, validation_part: float, epochs: int):
