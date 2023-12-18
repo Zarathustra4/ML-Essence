@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from models.loss_functions import LossEnum
-from models.model import Model
+from processing.functions.loss_functions import LossEnum
+from processing.models.model import Model
 
 
 class Optimizer(ABC):
@@ -28,7 +28,7 @@ class GradientDescent(Optimizer):
 
     def optimize(self, x: np.ndarray, y: np.ndarray, model: Model):
         prediction = model.forward_prop(x)
-        dw, db, train_loss_value = model.back_prop(x, y, prediction, self.loss, self.lr)
+        dw, db, train_loss_value = model.back_prop(x, y, prediction, self.loss_enum, self.lr)
         model.update_parameters(dw, db)
         return train_loss_value
 

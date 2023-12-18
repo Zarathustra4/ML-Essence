@@ -3,7 +3,7 @@ from abc import abstractmethod
 import numpy as np
 from enum import Enum
 
-from models.activations import Sigmoid
+from processing.functions.activations import Sigmoid
 
 
 class LossFunction:
@@ -55,9 +55,9 @@ class CrossEntropy(LossFunction):
     def gradient_values(self, x: np.ndarray,
                         y: np.ndarray,
                         prediction: np.ndarray):
-        train_size = x.shape[0]
-        dw = np.dot(x.T, (prediction - y)) * (1 / train_size)
-        db = np.sum(prediction - y) / train_size
+        diff = prediction - y
+        dw = (x * diff).mean(axis=0, keepdims=True).T
+        db = diff.mean()
         return dw, db
 
 
