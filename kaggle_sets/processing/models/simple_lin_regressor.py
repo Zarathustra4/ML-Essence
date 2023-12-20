@@ -53,9 +53,10 @@ class SimpleLinRegressor(Model):
         return loss(val_prediction, y_valid)
 
     def print_fit_progress(self, epoch: int, loss_name: str):
-        print(f"[Epoch {epoch}]", end="\t")
-        print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
-        print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
+        print(f"{'.'*21} Epoch {epoch} {'.'*21}")
+        print(f": {'Training Loss   ('+loss_name+')':<25} : {self.history['loss'][epoch - 1]:.4f} :")
+        print(f": {'Validation Loss ('+loss_name+')':<25} : {self.history['val_loss'][epoch - 1]:.4f} :")
+        print('.' * 53 + '\n')
 
     def set_scale_data(self, data: np.ndarray):
         data = np.array(data)
