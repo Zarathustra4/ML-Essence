@@ -16,5 +16,5 @@ def main(mode: Mode):
 
 
 if __name__ == "__main__":
-    main(mode=Mode.LINEAR_REGRESSION)
+    main(mode=Mode.BINARY_CLASSIFICATION)
 
