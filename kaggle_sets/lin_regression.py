@@ -5,25 +5,23 @@ from processing.models.optimizers import SGD
 from processing.models.lin_regressor import LinRegressor
 from plot.graph_plot import plot_loss_history
 import processing.preprocessing.data_scalar as scal
+import config as conf
 
-if __name__ == "__main__":
+
+def train_save_regressor():
     dtnp = DatasetToNumpy("mosquito-indicator", csv_delimeter=",")
     (x_train, y_train), (x_test, y_test) = dtnp(["date"], y_column="mosquito_Indicator")
 
     model = LinRegressor(units=4,
                          data_scalars=(scal.Normalizer(),),
                          optimizer=SGD(loss_enum=LossEnum.MEAN_SQUARED_ERROR,
-                                             batch_size=128, learning_rate=1e-3))
+                                       batch_size=128, learning_rate=1e-3))
 
     history = model.fit(x_train, y_train, epochs=300)
 
     plot_loss_history(history)
 
-    model.save("reg.json")
-
-    model = LinRegressor(units=4)
-
-    model.load("reg.json")
+    model.save(conf.LINEAR_REGRESSOR_PATH)
 
     test_prediction = model.predict(x_test)
     r2 = R2()
@@ -31,4 +29,3 @@ if __name__ == "__main__":
 
     print(f"[TEST MSE LOSS] - {mse(test_prediction, y_test)}")
     print(f"[TEST R2 METRIC] - {r2(test_prediction, y_test)}")
-

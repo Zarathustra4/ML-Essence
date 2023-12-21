@@ -1,0 +1,2 @@
+LINEAR_REGRESSOR_PATH = "E:\\Лабораторні\\3 курс\\ML Essencials\\kaggle_sets\\trained_models\\regressor.json"
+BINARY_CLASSIFIER_PATH = "E:\\Лабораторні\\3 курс\\ML Essencials\\kaggle_sets\\trained_models\\classifier.json"

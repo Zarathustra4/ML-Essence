@@ -5,8 +5,10 @@ from processing.models.optimizers import SGD
 from plot.graph_plot import plot_loss_history
 import processing.preprocessing.data_scalar as scal
 from processing.functions.metrics import Accuracy
+import config as conf
 
-if __name__ == "__main__":
+
+def train_save_classifier():
     dtnp = DatasetToNumpy("water-quality", csv_delimeter=",")
     (x_train, y_train), (x_test, y_test) = dtnp(drop_list=[], y_column="is_safe")
 
@@ -22,11 +24,9 @@ if __name__ == "__main__":
 
     plot_loss_history(history)
 
-    model.save("bin.json")
+    model.save(conf.BINARY_CLASSIFIER_PATH)
 
     model = BinaryClassifier(units=20)
-
-    model.load("bin.json")
 
     test_prediction = model.predict(x_test)
 
