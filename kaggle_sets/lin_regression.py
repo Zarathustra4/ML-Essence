@@ -21,7 +21,7 @@ def train_save_regressor():
 
     plot_loss_history(history)
 
-    model.save(conf.LINEAR_REGRESSOR_PATH)
+    model.save(conf.LIN_REGRESSOR_PATH)
 
     test_prediction = model.predict(x_test)
     r2 = R2()

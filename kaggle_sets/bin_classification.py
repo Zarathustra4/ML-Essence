@@ -24,9 +24,7 @@ def train_save_classifier():
 
     plot_loss_history(history)
 
-    model.save(conf.BINARY_CLASSIFIER_PATH)
-
-    model = BinaryClassifier(units=20)
+    model.save(conf.BIN_CLASSIFIER_PATH)
 
     test_prediction = model.predict(x_test)
 
