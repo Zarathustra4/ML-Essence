@@ -53,7 +53,7 @@ class BinaryClassifier(Model):
 
     def _set_scale_data(self, data: np.ndarray):
         for i in range(len(self.scalars)):
-            self.scalars[i].set_values(data)
+            self.scalars[i].fit(data)
             data = self.scalars[i](data)
 
     def _scale_data(self, data: np.ndarray):

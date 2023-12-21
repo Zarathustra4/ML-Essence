@@ -6,17 +6,15 @@ from processing.models.model import Model
 import processing.preprocessing.datasplits as ds
 from processing.models.optimizers import SGD, Optimizer
 import processing.preprocessing.data_scalar as scal
+import json
 
 
-class SimpleLinRegressor(Model):
+class LinRegressor(Model):
     def __init__(self, units, optimizer=SGD(loss_enum=LossEnum.MEAN_SQUARED_ERROR), data_scalars: tuple = ()):
         self.w = np.random.randn(units, 1)
         self.b = 1
         self.loss_functions = (LossEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
         self.history = {}
-        self._val_types = {ds.ValDataSplitEnum.REGULAR_VAL: ds.RegularValidation(),
-                           ds.ValDataSplitEnum.CROSS_VAL: ds.CrossValidation()}
-        self.scalars: list[scal.DataScalar] = []
         self.optimizer: Optimizer = optimizer
         self.scalars: list[scal.DataScalar] = list(data_scalars)
 
@@ -60,7 +58,7 @@ class SimpleLinRegressor(Model):
     def set_scale_data(self, data: np.ndarray):
         data = np.array(data)
         for i in range(len(self.scalars)):
-            self.scalars[i].set_values(data)
+            self.scalars[i].fit(data)
             data = self.scalars[i](data)
 
     def _scale_data(self, data: np.ndarray):
@@ -102,3 +100,24 @@ class SimpleLinRegressor(Model):
     def predict(self, x: np.ndarray):
         x = self._scale_data(x)
         return self.forward_prop(x)
+
+    def save(self, path: str):
+        model_data = {
+            "w": self.w.tolist(),
+            "b": self.b,
+            "scalars": [scalar.data() for scalar in self.scalars]
+        }
+        with open(path, 'w') as file:
+            json.dump(model_data, file)
+
+    def load(self, path: str):
+        with open(path, 'r') as file:
+            model_data = json.load(file)
+            self.w = np.array(model_data["w"])
+            self.b = model_data["b"]
+
+            self.scalars = []
+            for json_scalar in model_data["scalars"]:
+                self.scalars.append(
+                    scal.create_data_scalar(json_scalar)
+                )
