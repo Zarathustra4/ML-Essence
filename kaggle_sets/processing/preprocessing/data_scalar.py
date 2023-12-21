@@ -115,7 +115,7 @@ class Standardizer(DataScalar):
             std_values = float(mean_values)
 
         if isinstance(std_values, np.ndarray):
-            mean_values = std_values.tolist()
+            std_values = std_values.tolist()
         else:
             std_values = float(std_values)
 
@@ -131,7 +131,7 @@ def create_data_scalar(scalar_dict: dict):
         return scalar
 
     if scalar_dict["type"] == "standardizer":
-        scalar = Normalizer()
+        scalar = Standardizer()
         mean_values = np.array(scalar_dict["_mean_values"])
         std_values = np.array(scalar_dict["_std_values"])
         scalar.set_values(mean_values=mean_values, std_values=std_values)

@@ -1,5 +1,5 @@
 import numpy as np
-
+import json
 from exceptions.exceptions import ModelParameterError
 from processing.functions.loss_functions import LossEnum, LossFunction
 from processing.models.model import Model
@@ -15,7 +15,7 @@ class BinaryClassifier(Model):
         self.w: np.ndarray = np.random.randn(units, 1)
         self.b: float = 1.
         self.activation: ActivationFunction = activation
-        self.loss_functions: tuple[LossEnum] = (LossEnum.CROSS_ENTROPY, )
+        self.loss_functions: tuple[LossEnum] = (LossEnum.CROSS_ENTROPY,)
         self.history: dict = {}
         self.scalars: list[scal.DataScalar] = list(data_scalars)
         self.optimizer: Optimizer = optimizer
@@ -98,3 +98,24 @@ class BinaryClassifier(Model):
             self.print_fit_progress(epoch, loss.__class__.__name__)
 
         return self.history
+
+    def save(self, path: str):
+        model_data = {
+            "w": self.w.tolist(),
+            "b": self.b,
+            "scalars": [scalar.data() for scalar in self.scalars]
+        }
+        with open(path, 'w') as file:
+            json.dump(model_data, file)
+
+    def load(self, path: str):
+        with open(path, 'r') as file:
+            model_data = json.load(file)
+            self.w = np.array(model_data["w"])
+            self.b = model_data["b"]
+
+            self.scalars = []
+            for json_scalar in model_data["scalars"]:
+                self.scalars.append(
+                    scal.create_data_scalar(json_scalar)
+                )

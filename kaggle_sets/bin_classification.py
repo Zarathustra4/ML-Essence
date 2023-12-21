@@ -22,6 +22,12 @@ if __name__ == "__main__":
 
     plot_loss_history(history)
 
+    model.save("bin.json")
+
+    model = BinaryClassifier(units=20)
+
+    model.load("bin.json")
+
     test_prediction = model.predict(x_test)
 
     acc = Accuracy()(test_prediction, y_test)
