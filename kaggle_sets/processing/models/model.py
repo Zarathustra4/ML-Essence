@@ -57,4 +57,17 @@ class Model(ABC):
         :return:
         """
 
+    @abstractmethod
+    def save(self, path: str):
+        """
+        Save model to a given location
+        :param path: file location
+        :return:
+        """
 
+    @abstractmethod
+    def load(self, path: str):
+        """
+        Loads model from a given file location
+        :return: None
+        """
