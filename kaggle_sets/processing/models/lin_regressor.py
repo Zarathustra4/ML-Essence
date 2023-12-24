@@ -51,9 +51,10 @@ class LinRegressor(Model):
         return loss(val_prediction, y_valid)
 
     def print_fit_progress(self, epoch: int, loss_name: str):
-        print(f"[Epoch {epoch}]", end="\t")
-        print(f"[loss ({loss_name}) - {self.history['loss'][epoch - 1]}]\t")
-        print(f"[val_loss ({loss_name}) - {self.history['val_loss'][epoch - 1]}]\n")
+        print(f"{'.'*21} Epoch {epoch} {'.'*21}")
+        print(f": {'Training Loss   ('+loss_name+')':<25} : {self.history['loss'][epoch - 1]:.4f} :")
+        print(f": {'Validation Loss ('+loss_name+')':<25} : {self.history['val_loss'][epoch - 1]:.4f} :")
+        print('.' * 53 + '\n')
 
     def set_scale_data(self, data: np.ndarray):
         data = np.array(data)
@@ -86,6 +87,10 @@ class LinRegressor(Model):
         self.history["loss"] = [0] * epochs
         self.history["val_loss"] = [0] * epochs
 
+        metric_names = [metric.name for metric in metrics]
+        self.history.update({f"{metric_name}": [0] * epochs for metric_name in metric_names})
+        self.history.update({f"val_{metric_name}": [0] * epochs for metric_name in metric_names})
+
         for x_train, x_valid, y_train, y_valid, epoch in validation_splitter(x, y, validation_part, epochs):
             train_loss_value = self.optimizer.optimize(x_train, y_train, self)
             val_loss_value = self._validate(x_valid, y_valid, loss.value)
@@ -93,6 +98,14 @@ class LinRegressor(Model):
             self.history["loss"][epoch - 1] = train_loss_value
             self.history["val_loss"][epoch - 1] = val_loss_value
 
+            for metric in metrics:
+                train_metric_value = metric(y_train, self.predict(x_train))
+                val_metric_value = metric(y_valid, self.predict(x_valid))
+                metric_name = metric.name
+
+                self.history[f"{metric_name}"][epoch - 1] = train_metric_value
+                self.history[f"val_{metric_name}"][epoch - 1] = val_metric_value
+            
             self.print_fit_progress(epoch, loss.name)
 
         return self.history
