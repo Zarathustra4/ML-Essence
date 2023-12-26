@@ -6,3 +6,8 @@ def plot_loss_history(history, loss_key="loss", val_loss_key="val_loss"):
     plt.plot(time, history[loss_key], 'b')
     plt.plot(time, history[val_loss_key], 'r')
     plt.show()
+
+
+def plot_time_series(x, y):
+    plt.plot(x, y)
+    plt.show()

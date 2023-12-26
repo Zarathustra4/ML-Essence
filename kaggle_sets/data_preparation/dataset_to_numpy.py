@@ -27,7 +27,7 @@ class DatasetToNumpy:
 
         np_x = x.to_numpy()
         np_y = y.to_numpy()
-        np_y = np.expand_dims(y, axis=1)
+        np_y = np.expand_dims(np_y, axis=1)
 
         train_x, test_x, train_y, test_y = self._split_data(np_x, np_y, test_size, random_seed)
         np.set_printoptions(suppress=True, formatter={'float_kind': '{:.1f}'.format})
