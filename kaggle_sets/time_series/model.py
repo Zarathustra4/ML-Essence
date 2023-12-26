@@ -37,14 +37,14 @@ def train_save_model(train_set, epochs):
 
     history = model.fit(train_set, epochs=epochs)
 
-    model.save("../trained_models/time_series.h5")
+    model.save(conf.TS_MODEL_PATH)
 
     plt.plot(history.history["loss"])
     plt.show()
 
 
 def get_trained_model():
-    return tf.keras.models.load_model("../trained_models/time_series.h5")
+    return tf.keras.models.load_model(conf.TS_MODEL_PATH)
 
 
 def validate_model(validation_set):
