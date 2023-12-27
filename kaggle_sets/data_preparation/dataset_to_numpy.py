@@ -1,6 +1,9 @@
+import os
+
 import pandas as pd
 from pathlib import Path
 import numpy as np
+import kaggle_sets.config as conf
 
 
 """
@@ -12,7 +15,7 @@ Usage:
 
 class DatasetToNumpy:
     def __init__(self, csv_file: str, csv_delimeter: str) -> None:
-        self.csv = Path(f"./datasets/{csv_file}.csv")
+        self.csv = os.path.join(conf.BASE_DATASET_PATH, csv_file + ".csv")
         self.csv_delimeter = csv_delimeter
 
     def __call__(self, drop_list: list, y_column: str, test_size: float = 0.2, random_seed: int = 42) -> tuple:

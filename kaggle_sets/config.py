@@ -1,8 +1,14 @@
 import os
 
+# DATASETS
+BASE_DATASET_PATH = (os.environ.get("BASE_DATASET_PATH") or
+                     r"E:\Лабораторні\3 курс\ML Essencials\kaggle_sets\datasets")
+
 # CUSTOM MODELS
-LIN_REGRESSOR_PATH = os.environ.get("LIN_REGRESSOR_PATH") or "trained_models/regressor.json"
-BIN_CLASSIFIER_PATH = os.environ.get("BIN_CLASSIFIER_PATH") or "trained_models/classifier.json"
+LIN_REGRESSOR_PATH = (os.environ.get("LIN_REGRESSOR_PATH") or
+                      r"E:\Лабораторні\3 курс\ML Essencials\kaggle_sets\trained_models\regressor.json")
+BIN_CLASSIFIER_PATH = (os.environ.get("BIN_CLASSIFIER_PATH") or
+                       r"E:\Лабораторні\3 курс\ML Essencials\kaggle_sets\trained_models\classifier.json")
 
 # TIME SERIES
 TS_WINDOW_SIZE = 128
