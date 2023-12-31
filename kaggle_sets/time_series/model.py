@@ -1,59 +1,83 @@
+import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import kaggle_sets.config as conf
+from kaggle_sets.time_series.data_preparation import get_test_series, get_train_windowed_data
+from pathlib import Path
 
 
-def get_model(window_size: int = conf.TS_WINDOW_SIZE):
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Conv1D(filters=64, kernel_size=3,
-                               strides=1,
-                               activation="relu",
-                               padding='causal',
-                               input_shape=[window_size, 1]),
-        tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
-        tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)),
-        tf.keras.layers.Dense(128, activation="relu"),
-        tf.keras.layers.Dense(64, activation="relu"),
-        tf.keras.layers.Dense(1)
-    ])
+class Forecaster:
+    def __init__(self):
+        self.window_size = conf.TS_WINDOW_SIZE
+        self.path = conf.TS_MODEL_PATH
+        self.model: tf.keras.Model = self.__init_model()
 
-    model.compile(loss=tf.keras.losses.Huber(),
-                  optimizer=tf.keras.optimizers.Adam(lr=5e-3),
-                  metrics=["mae"])
+    def __init_model(self):
+        if Path(self.path).exists():
+            return tf.keras.models.load_model(self.path)
 
-    return model
+        return Forecaster.get_untrained_model()
 
+    @staticmethod
+    def get_untrained_model(window_size: int = conf.TS_WINDOW_SIZE):
+        model = tf.keras.models.Sequential([
+            tf.keras.layers.Conv1D(filters=64, kernel_size=3,
+                                   strides=1,
+                                   activation="relu",
+                                   padding='causal',
+                                   input_shape=[window_size, 1]),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)),
+            tf.keras.layers.Dense(128, activation="relu"),
+            tf.keras.layers.Dense(64, activation="relu"),
+            tf.keras.layers.Dense(1)
+        ])
 
-def model_forecast(model, series, window_size=conf.TS_WINDOW_SIZE):
-    ds = tf.data.Dataset.from_tensor_slices(series)
-    ds = ds.window(window_size, shift=1, drop_remainder=True)
-    ds = ds.flat_map(lambda w: w.batch(window_size))
-    ds = ds.batch(32).prefetch(1)
-    return model.predict(ds)
+        model.compile(loss=tf.keras.losses.Huber(),
+                      optimizer=tf.keras.optimizers.Adam(lr=5e-3),
+                      metrics=["mae"])
 
+        return model
 
-def train_save_model(train_set, epochs):
-    model = get_model()
+    @staticmethod
+    def plot_forecast(series, forecast, zoom=True):
+        if zoom:
+            series = series[-len(forecast):]
 
-    history = model.fit(train_set, epochs=epochs)
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(len(series)), series, label='Original Series')
+        plt.plot(range(len(series), len(series) + len(forecast)), forecast, label='Forecasted Values')
+        plt.xlabel('Time Steps')
+        plt.ylabel('Values')
+        plt.title('Time Series Forecasting')
+        plt.legend()
+        plt.show()
 
-    model.save(conf.TS_MODEL_PATH)
+    def reset_model(self):
+        self.model = Forecaster.get_untrained_model()
 
-    plt.plot(history.history["loss"])
-    plt.show()
+    def fit(self, epochs=50, plot_history=True):
+        train_set = get_train_windowed_data()
+        history = self.model.fit(train_set, epochs=epochs)
 
+        self.model.save(conf.TS_MODEL_PATH)
 
-def get_trained_model():
-    return tf.keras.models.load_model(conf.TS_MODEL_PATH)
+        if plot_history:
+            plt.plot(history.history["loss"])
+            plt.show()
 
+    def forecast(self, series, n_steps: int = 128, plot_forecast=True, zoom=True):
+        x = series[-self.window_size:]
+        x = x.reshape(1, self.window_size, 1)
 
-def validate_model(validation_set):
-    model = get_trained_model()
-    forecast = model_forecast(model, validation_set)
+        predictions = []
 
-    validation_set = validation_set[conf.TS_WINDOW_SIZE:]
+        for _ in range(n_steps):
+            next_step = self.model.predict(x)
+            x = np.concatenate([x[:, 1:, :], next_step.reshape(1, 1, 1)], axis=1)
+            predictions.append(next_step[0, 0])
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(validation_set, 'r')
-    plt.plot(forecast, 'b')
-    plt.show()
+        if plot_forecast:
+            Forecaster.plot_forecast(series, predictions, zoom)
+
+        return predictions

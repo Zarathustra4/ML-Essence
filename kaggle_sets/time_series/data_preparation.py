@@ -4,8 +4,8 @@ import kaggle_sets.config as conf
 
 
 def parse_data(filename=conf.TS_DATASET_PATH):
-    temps = pd.read_csv(filename, delimiter=",")["Temp"].to_numpy()
-    return temps
+    series = pd.read_csv(filename, delimiter=",")["Temp"].to_numpy()
+    return series
 
 
 def window_data(series,
@@ -27,7 +27,13 @@ def split_data(series, split_time=conf.TS_SPLIT_TIME):
     return train_series, validation_series
 
 
-def get_data():
+def get_train_windowed_data():
     series = parse_data()
-    train_series, validation_series = split_data(series)
-    return window_data(train_series), validation_series
+    train_data, _ = split_data(series)
+    return window_data(train_data)
+
+
+def get_test_series():
+    series = parse_data()
+    _, test_series = split_data(series)
+    return test_series
