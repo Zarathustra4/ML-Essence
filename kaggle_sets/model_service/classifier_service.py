@@ -8,6 +8,7 @@ from kaggle_sets.processing.functions.metrics import Accuracy
 from kaggle_sets.processing.models.binaryclassifier import BinaryClassifier
 from kaggle_sets.processing.models.optimizers import SGD
 import kaggle_sets.processing.preprocessing.data_scalar as scal
+from pathlib import Path
 
 
 class ClassifierService:
@@ -16,25 +17,11 @@ class ClassifierService:
         (self.x_train, self.y_train), (self.x_test, self.y_test) = self.numpy_caster(drop_list=[], y_column="is_safe")
 
         self.path = conf.BIN_CLASSIFIER_PATH
+        self.model: BinaryClassifier = self._get_model()
 
-    def _train_model(
-            self,
-            model: BinaryClassifier,
-            epochs: int,
-            validation_split: float,
-            plot_history: bool
-    ):
-        history = model.fit(self.x_train, self.y_train, epochs, validation_split)
-
-        if plot_history:
-            plot_loss_history(history)
-
-        model.save(self.path)
-
-        return history
-
-    def _get_model(self, load=True):
-        model = BinaryClassifier(
+    @staticmethod
+    def get_untrained_model():
+        return BinaryClassifier(
             units=20,
             optimizer=SGD(loss_enum=LossEnum.CROSS_ENTROPY,
                           learning_rate=1e-2,
@@ -42,25 +29,12 @@ class ClassifierService:
             data_scalars=(scal.Standardizer(),)
         )
 
-        if load:
-            model.load(self.path)
-
-        return model
-
-    def create_empty_model(self) -> None:
-        """
-            Creates an untrained model
-            :return: None
-        """
-        model = self._get_model(load=False)
-        model.save(self.path)
-
     def train_model(
             self,
             epochs: int = 300,
             validation_split: float = 0.2,
             plot_history=True
-    ) -> dict:
+    ):
         """
         Trains a model
         :param epochs: number of epochs
@@ -68,14 +42,29 @@ class ClassifierService:
         :param plot_history: set True if you want to plot training history
         :return: dict - training history
         """
-        model = self._get_model()
+        history = self.model.fit(self.x_train, self.y_train, epochs, validation_split)
 
-        return self._train_model(
-            model=model,
-            epochs=epochs,
-            validation_split=validation_split,
-            plot_history=plot_history
-        )
+        if plot_history:
+            plot_loss_history(history)
+
+        self.model.save(self.path)
+
+        return history
+
+    def _get_model(self):
+        model = ClassifierService.get_untrained_model()
+
+        if Path(self.path).exists():
+            model.load(self.path)
+
+        return model
+
+    def reset_model(self) -> None:
+        """
+            Creates an untrained model
+            :return: None
+        """
+        self.model = ClassifierService.get_untrained_model()
 
     def create_train_model(
             self,
@@ -91,19 +80,20 @@ class ClassifierService:
             :return: history - dict
         """
 
-        model = self._get_model(load=False)
+        self.model = ClassifierService.get_untrained_model()
 
-        return self._train_model(
-            model=model,
+        return self.train_model(
             epochs=epochs,
             validation_split=validation_split,
             plot_history=plot_history
         )
 
     def test_model(self) -> dict:
-        model = self._get_model()
-
-        predictions = model.predict(self.x_test)
+        """
+        Tests model on prepared test set and calculates metrics
+        :return: dict of metrics
+        """
+        predictions = self.model.predict(self.x_test)
 
         acc = Accuracy()
 
@@ -112,26 +102,24 @@ class ClassifierService:
         }
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        model = self._get_model()
+        """
+        Make predictions
+        :param x: input data
+        :return: prediction
+        """
 
-        return model.predict(x)
+        return self.model.predict(x)
 
 
 if __name__ == "__main__":
     service = ClassifierService()
 
     print(
-        service.create_empty_model()
+        service.reset_model()
     )
 
     print(service.train_model())
 
     service.create_train_model()
 
-    service.test_model()
-
-    print(
-        service.predict(
-            service.x_train[:5]
-        )
-    )
+    print(service.test_model())

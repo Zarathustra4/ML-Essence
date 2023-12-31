@@ -8,6 +8,7 @@ from kaggle_sets.processing.models.lin_regressor import LinRegressor
 from kaggle_sets.processing.models.optimizers import SGD
 from kaggle_sets.processing.preprocessing import data_scalar as scal
 import kaggle_sets.config as conf
+from pathlib import Path
 
 
 class RegressionService:
@@ -16,43 +17,7 @@ class RegressionService:
         (self.x_train, self.y_train), (self.x_test, self.y_test) = self.numpy_caster(["date"],
                                                                                      y_column="mosquito_Indicator")
         self.path = conf.LIN_REGRESSOR_PATH
-
-    def _train_model(
-            self,
-            model: LinRegressor,
-            epochs: int,
-            validation_split: float,
-            metrics: tuple,
-            plot_history: bool
-    ):
-        history = model.fit(self.x_train, self.y_train, epochs, validation_split, metrics=metrics)
-
-        if plot_history:
-            plot_loss_history(history)
-
-        model.save(self.path)
-
-        return history
-
-    def _get_model(self, load=True):
-        model = LinRegressor(units=4,
-                             data_scalars=(scal.Normalizer(),),
-                             optimizer=SGD(
-                                 loss_enum=LossEnum.MEAN_SQUARED_ERROR,
-                                 batch_size=128, learning_rate=1e-3
-                             ))
-        if load:
-            model.load(self.path)
-
-        return model
-
-    def create_empty_model(self) -> None:
-        """
-            Creates an untrained model
-            :return: None
-        """
-        model = self._get_model(load=False)
-        model.save(self.path)
+        self.model: LinRegressor = self._get_model()
 
     def train_model(
             self,
@@ -60,7 +25,7 @@ class RegressionService:
             validation_split: float = 0.2,
             metrics=(MetricsEnum.MEAN_SQUARED_ERROR.value, MetricsEnum.MEAN_ABSOLUTE_ERROR.value),
             plot_history=True
-    ) -> dict:
+    ):
         """
         Trains a model
         :param epochs: number of epochs
@@ -69,15 +34,37 @@ class RegressionService:
         :param plot_history: set True if you want to plot training history
         :return: dict - training history
         """
-        model = self._get_model()
+        history = self.model.fit(self.x_train, self.y_train, epochs, validation_split, metrics=metrics)
 
-        return self._train_model(
-            model=model,
-            epochs=epochs,
-            validation_split=validation_split,
-            metrics=metrics,
-            plot_history=plot_history
-        )
+        if plot_history:
+            plot_loss_history(history)
+
+        self.model.save(self.path)
+
+        return history
+
+    @staticmethod
+    def get_untrained_model():
+        return LinRegressor(units=4,
+                            data_scalars=(scal.Normalizer(),),
+                            optimizer=SGD(
+                                loss_enum=LossEnum.MEAN_SQUARED_ERROR,
+                                batch_size=128, learning_rate=1e-3
+                            ))
+
+    def _get_model(self):
+        model = RegressionService.get_untrained_model()
+        if Path(self.path).exists():
+            model.load(self.path)
+
+        return model
+
+    def reset_model(self) -> None:
+        """
+            Creates an untrained model
+            :return: None
+        """
+        self.model = RegressionService.get_untrained_model()
 
     def create_train_model(
             self,
@@ -95,10 +82,9 @@ class RegressionService:
             :return: history - dict
         """
 
-        model = self._get_model(load=False)
+        self.model = RegressionService.get_untrained_model()
 
-        return self._train_model(
-            model=model,
+        return self.train_model(
             epochs=epochs,
             validation_split=validation_split,
             metrics=metrics,
@@ -110,9 +96,7 @@ class RegressionService:
         Tests a model prediction and return a dict of calculated metrics
         :return: dict
         """
-        model = self._get_model()
-
-        predictions = model.predict(self.x_test)
+        predictions = self.model.predict(self.x_test)
 
         mse = MSE()
         mae = MAE()
@@ -125,16 +109,14 @@ class RegressionService:
         }
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        model = self._get_model()
-
-        return model.predict(x)
+        return self.model.predict(x)
 
 
 if __name__ == "__main__":
     service = RegressionService()
 
     print(
-        service.create_empty_model()
+        service.reset_model()
     )
 
     service.train_model()

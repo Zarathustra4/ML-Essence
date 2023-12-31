@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import kaggle_sets.config as conf
-from kaggle_sets.time_series.data_preparation import get_test_series, get_train_windowed_data
 from pathlib import Path
 
 
@@ -56,8 +55,7 @@ class Forecaster:
     def reset_model(self):
         self.model = Forecaster.get_untrained_model()
 
-    def fit(self, epochs=50, plot_history=True):
-        train_set = get_train_windowed_data()
+    def fit(self, train_set, epochs=50, plot_history=True):
         history = self.model.fit(train_set, epochs=epochs)
 
         self.model.save(conf.TS_MODEL_PATH)
@@ -65,6 +63,8 @@ class Forecaster:
         if plot_history:
             plt.plot(history.history["loss"])
             plt.show()
+
+        return history
 
     def forecast(self, series, n_steps: int = 128, plot_forecast=True, zoom=True):
         x = series[-self.window_size:]
