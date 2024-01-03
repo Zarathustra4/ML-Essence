@@ -1,7 +1,8 @@
 from enum import Enum
+
+from kaggle_sets.time_series_forecasting import train_save_forecaster
 from lin_regression import train_save_regressor
 from bin_classification import train_save_classifier
-from forecaster import train_save_forecaster
 
 
 # TODO: rename "kaggle_sets" module

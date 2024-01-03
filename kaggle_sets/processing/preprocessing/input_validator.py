@@ -1,11 +1,11 @@
 from functools import wraps
 
-from exceptions.exceptions import ModelParameterError
-import processing.preprocessing.datasplits as ds
+from kaggle_sets.exceptions.exceptions import ModelParameterError
+import kaggle_sets.processing.preprocessing.datasplits as ds
 import numpy as np
 
-from processing.functions.loss_functions import LossEnum
-import processing.preprocessing.data_scalar as scal
+from kaggle_sets.processing.functions.loss_functions import LossEnum
+import kaggle_sets.processing.preprocessing.data_scalar as scal
 
 
 def validate_input(func):

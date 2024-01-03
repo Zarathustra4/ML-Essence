@@ -1,16 +1,16 @@
 import numpy as np
 
-from processing.functions.loss_functions import LossEnum, LossFunction
-from exceptions.exceptions import ModelParameterError
-from processing.models.model import Model
-import processing.preprocessing.datasplits as ds
-from processing.models.optimizers import SGD, Optimizer
-import processing.preprocessing.data_scalar as scal
+from kaggle_sets.processing.functions.loss_functions import LossEnum, LossFunction
+from kaggle_sets.exceptions.exceptions import ModelParameterError
+from kaggle_sets.processing.models.model import Model
+import kaggle_sets.processing.preprocessing.datasplits as ds
+from kaggle_sets.processing.models.optimizers import SGD, Optimizer
+import kaggle_sets.processing.preprocessing.data_scalar as scal
 import json
 
 
 class LinRegressor(Model):
-    def __init__(self, units, optimizer=SGD(loss_enum=LossEnum.MEAN_SQUARED_ERROR), data_scalars: tuple = ()):
+    def __init__(self, units: int, optimizer=SGD(loss_enum=LossEnum.MEAN_SQUARED_ERROR), data_scalars: tuple = ()):
         self.w = np.random.randn(units, 1)
         self.b = 1
         self.loss_functions = (LossEnum.MEAN_SQUARED_ERROR,)  # tuple of allowed loss functions
