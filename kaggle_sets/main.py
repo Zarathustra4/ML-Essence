@@ -23,5 +23,5 @@ def main(mode: Mode):
 
 
 if __name__ == "__main__":
-    main(mode=Mode.TIME_SERIES)
+    main(mode=Mode.BINARY_CLASSIFICATION)
 

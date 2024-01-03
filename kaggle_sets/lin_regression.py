@@ -1,31 +1,13 @@
-from data_preparation.dataset_to_numpy import DatasetToNumpy
-from processing.functions.loss_functions import LossEnum
-from processing.models.optimizers import SGD
-from processing.models.lin_regressor import LinRegressor
-from plot.graph_plot import plot_loss_history
-from processing.functions.metrics import MetricsEnum
-import processing.preprocessing.data_scalar as scal
-import config as conf
+from kaggle_sets.model_service.regression_service import RegressionService
 
 
 def train_save_regressor():
-    dtnp = DatasetToNumpy("mosquito-indicator", csv_delimeter=",")
-    (x_train, y_train), (x_test, y_test) = dtnp(["date"], y_column="mosquito_Indicator")
+    service = RegressionService()
 
-    model = LinRegressor(units=4,
-                         data_scalars=(scal.Normalizer(),),
-                         optimizer=SGD(loss_enum=LossEnum.MEAN_SQUARED_ERROR,
-                                       batch_size=128, learning_rate=1e-3))
+    history = service.create_train_model()
+    metrics = service.test_model()
 
-    history = model.fit(x_train, y_train, epochs=300, metrics=(MetricsEnum.MEAN_SQUARED_ERROR.value, MetricsEnum.MEAN_ABSOLUTE_ERROR.value))
-
-    plot_loss_history(history)
-
-    model.save(conf.LIN_REGRESSOR_PATH)
-
-    test_prediction = model.predict(x_test)
-
-    print(f"| Prediction Mean Squared Error | {MetricsEnum.MEAN_SQUARED_ERROR.value(test_prediction, y_test)}")
-    print(f"| Prediction R Squared          | {MetricsEnum.R_SQUARED.value(test_prediction, y_test)}")
-    print(f"| Final Mean Squared Error      | {history['mean_squared_error'][-1]}")
-    print(f"| Final Mean Absolute Error     | {history['mean_absolute_error'][-1]}")
+    print(f"| Prediction Mean Squared Error | {metrics['mae'][0]: .2f}")
+    print(f"| Prediction R Squared          | {metrics['r2']: .2f}")
+    print(f"| Prediction Mean Squared Error | {metrics['mse']: .2f}")
+    print(f"| Final Mean Absolute Error     | {history['mean_absolute_error'][-1][0]: .2f}")
