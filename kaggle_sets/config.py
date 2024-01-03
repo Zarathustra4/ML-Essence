@@ -1,6 +1,6 @@
 import os
 
-BASE_PATH = os.path.abspath(os.getcwd())
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # DATASETS
 BASE_DATASET_PATH = os.path.join(BASE_PATH, "datasets")
