@@ -111,20 +111,17 @@ class RegressionService:
     def predict(self, x: np.ndarray) -> np.ndarray:
         return self.model.predict(x)
 
+    def predict_by_csv(self, filename: str, delimeter: str = ","):
+        caster = DatasetToNumpy(filename, csv_delimeter=delimeter)
+        (x, _), _ = caster(["date"], y_column="mosquito_Indicator", test_size=0)
+
+        return self.model.predict(x)
+
 
 if __name__ == "__main__":
     service = RegressionService()
 
-    print(
-        service.reset_model()
-    )
+    prediction = service.predict_by_csv("mosquito-indicator")
+    print(f"10 first predictions - {prediction[:10]}")
+    print(f"Shape of prediction {prediction.shape}")
 
-    service.train_model()
-
-    service.create_train_model()
-
-    print(service.test_model())
-
-    print(
-        service.predict(np.array([[1, 2, 3, 4], [5, 6, 4, 2]]))
-    )

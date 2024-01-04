@@ -66,7 +66,7 @@ class Forecaster:
 
         return history
 
-    def forecast(self, series, n_steps: int = 128, plot_forecast=True, zoom=True):
+    def forecast(self, series, n_steps: int = 100, plot_forecast=True, zoom=True):
         x = series[-self.window_size:]
         x = x.reshape(1, self.window_size, 1)
 
@@ -80,4 +80,4 @@ class Forecaster:
         if plot_forecast:
             Forecaster.plot_forecast(series, predictions, zoom)
 
-        return predictions
+        return np.array(predictions)
