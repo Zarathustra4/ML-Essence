@@ -4,7 +4,7 @@ from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 import kaggle_sets.config as conf
 from kaggle_sets.plot.graph_plot import plot_loss_history
 from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.functions.metrics import Accuracy
+from kaggle_sets.processing.functions.metrics import Accuracy, ConfusionMatrix
 from kaggle_sets.processing.models.binaryclassifier import BinaryClassifier
 from kaggle_sets.processing.models.optimizers import SGD
 import kaggle_sets.processing.preprocessing.data_scalar as scal
@@ -18,6 +18,7 @@ class ClassifierService:
 
         self.path = conf.BIN_CLASSIFIER_PATH
         self.model: BinaryClassifier = self._get_model()
+        self.confusion_matrix = ConfusionMatrix()
 
     @staticmethod
     def get_untrained_model():
@@ -97,8 +98,11 @@ class ClassifierService:
 
         acc = Accuracy()
 
+        confusion = self.confusion_matrix(predictions, self.y_test)
+
         return {
-            "accuracy": acc(predictions, self.y_test)
+            "accuracy": acc(predictions, self.y_test),
+            "confusion": confusion
         }
 
     def predict(self, x: np.ndarray) -> np.ndarray:
