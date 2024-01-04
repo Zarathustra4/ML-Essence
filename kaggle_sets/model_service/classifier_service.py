@@ -110,16 +110,17 @@ class ClassifierService:
 
         return self.model.predict(x)
 
+    def predict_by_csv(self, filename: str, delimeter: str = ",") -> np.ndarray:
+        caster = DatasetToNumpy(filename, csv_delimeter=delimeter)
+        (x, _), _ = caster(drop_list=[], y_column="is_safe", test_size=0)
+
+        return self.model.predict(x).round()
+
 
 if __name__ == "__main__":
     service = ClassifierService()
 
-    print(
-        service.reset_model()
-    )
+    prediction = service.predict_by_csv("water-quality")
 
-    print(service.train_model())
-
-    service.create_train_model()
-
-    print(service.test_model())
+    print(f"10 first predictions - {prediction[:10]}")
+    print(f"Shape of prediction {prediction.shape}")
