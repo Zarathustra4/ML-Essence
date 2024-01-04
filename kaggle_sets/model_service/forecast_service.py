@@ -59,10 +59,10 @@ class ForecastService:
         """
         return self.model.forecast(series, ahead_steps)
 
-    def predict_by_csv(self, filename, delimeter=",", plot_forecast: bool = True):
+    def predict_by_csv(self, filename, ahead_steps=100, delimeter=",", plot_forecast: bool = True):
         filename = os.path.join(conf.BASE_DATASET_PATH, filename + ".csv")
         series = pd.read_csv(filename, delimiter=delimeter)["Temp"].to_numpy()
-        return self.model.forecast(series, plot_forecast=plot_forecast)
+        return self.model.forecast(series, plot_forecast=plot_forecast, n_steps=ahead_steps)
 
 
 if __name__ == "__main__":
