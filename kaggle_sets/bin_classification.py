@@ -7,10 +7,11 @@ def train_save_classifier():
     history = service.create_train_model()
     metrics = service.test_model()
 
-    print(f"| Prediction Accuracy   | {metrics['accuracy']: .3f}")
-    print(f"| Final Loss            | {history['loss'][-1][0]: .3f}")
-    print(f"| Precision             | {metrics['precision']: .3f}")
-    print(f"| Recall                | {metrics['recall']: .3f}")
-    print(f"| F1                    | {metrics['f1']: .3f}")
+    print(f"| Prediction Accuracy       | {metrics['accuracy']: .3f}")
+    print(f"| Final Loss                | {history['loss'][-1][0]: .3f}")
+    print(f"| Precision                 | {metrics['precision']: .3f}")
+    print(f"| Recall                    | {metrics['recall']: .3f}")
+    print(f"| F1                        | {metrics['f1']: .3f}")
+    print(f"| Area under the roc curve  | {metrics['auc']: .3f}")
 
     ConfusionMatrix.print_matrix(metrics['confusion'])
