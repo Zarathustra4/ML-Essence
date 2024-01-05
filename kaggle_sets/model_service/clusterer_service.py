@@ -1,6 +1,10 @@
+import os.path
+
 import matplotlib.pyplot as plt
+import pandas as pd
+import kaggle_sets.config as conf
 from kaggle_sets.clustering.model import Clusterer
-from kaggle_sets.clustering.data_preparation import preprocess_data
+from kaggle_sets.clustering.data_preparation import preprocess_data, drop_columns, encode_categorical, scale_data, apply_pca
 
 
 class ClustererService:
@@ -14,6 +18,18 @@ class ClustererService:
         :return: DataFrame with cluster labels
         """
         clustered_data = self.clusterer.fit_predict_clusters(preprocessed_data)
+        return clustered_data
+
+    def cluster_data_by_csv(self, filename, delimiter=","):
+        filename = os.path.join(conf.BASE_DATASET_PATH, filename + ".csv")
+        data = pd.read_csv(filename, delimiter=delimiter)
+        data = drop_columns(data)
+        data = data.dropna()
+        data = encode_categorical(data)
+        scaled_data = scale_data(data)
+        pca_result = apply_pca(scaled_data)
+
+        clustered_data = self.clusterer.fit_predict_clusters(pca_result)
         return clustered_data
 
     def get_clusters(self):
@@ -56,7 +72,9 @@ class ClustererService:
         clusters = self.get_clusters()
         print(f"Clusters: {clusters}")
 
-        self.plot_3d_clusters(preprocessed_data['x'], preprocessed_data['y'], preprocessed_data['z'])
+        self.plot_3d_clusters(clustered_data['col1'], clustered_data['col2'], clustered_data['col3'])
+        return clustered_data
+
 
 if __name__ == "__main__":
     cluster_service = ClustererService(n_clusters=2)

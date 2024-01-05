@@ -18,20 +18,3 @@ class Clusterer:
     def get_clusters(self):
         return self.data["Clusters"]
 
-    def plot_3d_clusters(self, x, y, z):
-        fig = plt.figure(figsize=(10, 8))
-        ax = fig.add_subplot(111, projection='3d')
-
-        cmap = 'viridis'
-
-        scatter = ax.scatter(x, y, z, s=40, c=self.data["Clusters"], marker='o', cmap=cmap)
-
-        cbar = fig.colorbar(scatter, ax=ax, pad=0.1)
-        cbar.set_label('Cluster')
-
-        ax.set_title("The Plot Of The Clusters")
-        ax.set_xlabel('X-axis')
-        ax.set_ylabel('Y-axis')
-        ax.set_zlabel('Z-axis')
-
-        plt.show()
