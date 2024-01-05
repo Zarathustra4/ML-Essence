@@ -29,7 +29,7 @@ class ForecastService:
         """
         self.model.reset_model()
 
-    def test_model(self, ahead_steps=100, plot=True) -> dict:
+    def test_model(self, ahead_steps=conf.TS_WINDOW_SIZE, plot=True) -> dict:
         """
         Tests model by a test set
         :param ahead_steps: ahead time steps for forecasting
@@ -50,7 +50,7 @@ class ForecastService:
             "mae": tf.keras.metrics.mean_absolute_error(series[-ahead_steps:], forecast).numpy()
         }
 
-    def predict(self, series, ahead_steps=100):
+    def predict(self, series, ahead_steps=conf.TS_WINDOW_SIZE):
         """
         Making forecast
         :param ahead_steps: ahead time steps for forecast
@@ -59,7 +59,7 @@ class ForecastService:
         """
         return self.model.forecast(series, ahead_steps)
 
-    def predict_by_csv(self, filename, ahead_steps=100, delimeter=",", plot_forecast: bool = True):
+    def predict_by_csv(self, filename, ahead_steps=conf.TS_WINDOW_SIZE, delimeter=",", plot_forecast: bool = True):
         filename = os.path.join(conf.BASE_DATASET_PATH, filename + ".csv")
         series = pd.read_csv(filename, delimiter=delimeter)["Temp"].to_numpy()
         return self.model.forecast(series, plot_forecast=plot_forecast, n_steps=ahead_steps)
