@@ -93,8 +93,34 @@ class ConfusionMatrix:
         print("|{:20}|{:<10}{:<5}|".format("Predicted Negative", fn, tn))
 
 
+def precision(prediction: np.ndarray, y: np.ndarray):
+    prediction = prediction.round()
+    tp = np.sum(np.logical_and(prediction == 1, y == 1))
+    fp = np.sum(np.logical_and(prediction == 1, y == 0))
+
+    return tp / (tp + fp)
+
+
+def recall(prediction: np.ndarray, y: np.ndarray):
+    prediction = prediction.round()
+    tn = np.sum(np.logical_and(prediction == 0, y == 0))
+    fp = np.sum(np.logical_and(prediction == 1, y == 0))
+
+    return tn / (tn + fp)
+
+
+def f1(prediction: np.ndarray, y: np.ndarray):
+    p = precision(prediction, y)
+    r = recall(prediction, y)
+
+    return 2 * (p * r) / (p + r) if (p + r) > 0 else 0
+
+
 class MetricsEnum(Enum):
     MEAN_SQUARED_ERROR = MSE()
     MEAN_ABSOLUTE_ERROR = MAE()
     ACCURACY = Accuracy()
     R_SQUARED = R2()
+    PRECISION = precision
+    RECALL = recall
+    F1 = f1
