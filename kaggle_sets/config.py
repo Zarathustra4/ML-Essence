@@ -9,6 +9,10 @@ BASE_DATASET_PATH = os.path.join(BASE_PATH, "datasets")
 LIN_REGRESSOR_PATH = os.path.join(BASE_PATH, "trained_models", "regressor.json")
 BIN_CLASSIFIER_PATH = os.path.join(BASE_PATH, "trained_models", "classifier.json")
 
+# CLUSTERING
+CLUSTER_DATASET_PATH = os.path.join(BASE_PATH, "datasets", "airline-satisfaction.csv")
+CLUSTER_MODEL_PATH = os.path.join(BASE_PATH, "trained_models", "clustering.h5")
+
 # TIME SERIES
 TS_WINDOW_SIZE = 128
 TS_BATCH_SIZE = 32
