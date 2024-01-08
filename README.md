@@ -1,9 +1,14 @@
 <div align="center">
-**ML Essence** <br>
 
-Machine Learning Essence is a niche Python project with educational purposes in both machine and human senses. <br>
-![The cheat](https://media.discordapp.net/attachments/1051467735420370944/1178233175915380796/image.png?ex=65756627&is=6562f127&hm=a26583860124c05e6c67d5d79c2224a7efa7fc695e93e119d9b111a896e2027e&=&format=webp)
+   # **ML Essence**
+
+   Machine Learning Essence is a niche Python project with educational purposes in both machine and human senses. <br>
+
+   [![Python](https://img.shields.io/badge/Language-Python-blue?style=plastic)](https://www.python.org/)
+
+   ![Screen](https://media.discordapp.net/attachments/1051467735420370944/1178233175915380796/image.png?ex=65756627&is=6562f127&hm=a26583860124c05e6c67d5d79c2224a7efa7fc695e93e119d9b111a896e2027e&=&format=webp)
 </div>
+
 
 # Requirements:
 | Package Name                                       | Description                  |
@@ -13,6 +18,8 @@ Machine Learning Essence is a niche Python project with educational purposes in 
 | [six](https://pypi.org/project/six/)               | Compatibility library        |
 | [pandas](https://pypi.org/project/pandas/)         | Data analysis toolkit        |
 | [pillow](https://pypi.org/project/Pillow/)         | Imaging library              |
+| [tensorflow](https://pypi.org/project/tensorflow/) | Machine learning framework   |
+| [streamlit](https://pypi.org/project/streamlit/)   | Web interface framework      |
 
 Check `requirements.txt`
 
@@ -30,3 +37,5 @@ Check `requirements.txt`
 <a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/wine_analisys.ipynb">Wine Dataset</a>
 <br>
 <a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/mosquito_analisys.ipynb">Mosquito Dataset</a>
+<br>
+<a href="https://github.com/Zarathustra4/ML-Essence/blob/master/kaggle_sets/data_analisys/water_analisys.ipynb">Water Dataset</a>
