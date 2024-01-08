@@ -7,6 +7,4 @@ def train_save_forecaster():
     service.train_model(epochs=40)
 
     print("| --- Testing model --- |")
-    print(
-        service.test_model()
-    )
+    print(service.test_model())
