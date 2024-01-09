@@ -27,6 +27,5 @@ def main(mode: Mode):
 
 
 if __name__ == "__main__":
-    main(mode=Mode.TIME_SERIES)
-    main(mode=Mode.CLUSTERING)
+    main(mode=Mode.LINEAR_REGRESSION)
 

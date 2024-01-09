@@ -72,6 +72,26 @@ class LinRegressor(Model):
         self.w -= dw
         self.b -= db
 
+    def _init_history(self, metrics: tuple, epochs: int) -> None:
+        self.history["loss"] = [0] * epochs
+        self.history["val_loss"] = [0] * epochs
+
+        metric_names = [metric.name for metric in metrics]
+        self.history.update({f"{metric_name}": [0] * epochs for metric_name in metric_names})
+        self.history.update({f"val_{metric_name}": [0] * epochs for metric_name in metric_names})
+
+    def update_history(self, epoch: int, train_loss_value, val_loss_value, metrics, y_train, x_train, y_valid, x_valid):
+        self.history["loss"][epoch - 1] = train_loss_value
+        self.history["val_loss"][epoch - 1] = val_loss_value
+
+        for metric in metrics:
+            train_metric_value = metric(y_train, self.predict(x_train))
+            val_metric_value = metric(y_valid, self.predict(x_valid))
+            metric_name = metric.name
+
+            self.history[f"{metric_name}"][epoch - 1] = train_metric_value
+            self.history[f"val_{metric_name}"][epoch - 1] = val_metric_value
+
     def fit(self, x: np.ndarray,
             y: np.ndarray,
             epochs: int,
@@ -84,27 +104,14 @@ class LinRegressor(Model):
         self.set_scale_data(x)
         x = self._scale_data(x)
 
-        self.history["loss"] = [0] * epochs
-        self.history["val_loss"] = [0] * epochs
-
-        metric_names = [metric.name for metric in metrics]
-        self.history.update({f"{metric_name}": [0] * epochs for metric_name in metric_names})
-        self.history.update({f"val_{metric_name}": [0] * epochs for metric_name in metric_names})
+        self._init_history(metrics, epochs)
 
         for x_train, x_valid, y_train, y_valid, epoch in validation_splitter(x, y, validation_part, epochs):
             train_loss_value = self.optimizer.optimize(x_train, y_train, self)
             val_loss_value = self._validate(x_valid, y_valid, loss.value)
 
-            self.history["loss"][epoch - 1] = train_loss_value
-            self.history["val_loss"][epoch - 1] = val_loss_value
-
-            for metric in metrics:
-                train_metric_value = metric(y_train, self.predict(x_train))
-                val_metric_value = metric(y_valid, self.predict(x_valid))
-                metric_name = metric.name
-
-                self.history[f"{metric_name}"][epoch - 1] = train_metric_value
-                self.history[f"val_{metric_name}"][epoch - 1] = val_metric_value
+            self.update_history(epoch, train_loss_value, val_loss_value,
+                                metrics, y_train, x_train, y_valid, x_valid)
             
             self.print_fit_progress(epoch, loss.name)
 

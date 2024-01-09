@@ -1,7 +1,7 @@
 import numpy as np
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
-from kaggle_sets.plot.graph_plot import plot_loss_history
+from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
 from kaggle_sets.processing.functions.loss_functions import LossEnum
 from kaggle_sets.processing.functions.metrics import MetricsEnum, MSE, MAE, R2
 from kaggle_sets.processing.models.lin_regressor import LinRegressor
@@ -9,6 +9,8 @@ from kaggle_sets.processing.models.optimizers import SGD
 from kaggle_sets.processing.preprocessing import data_scalar as scal
 import kaggle_sets.config as conf
 from pathlib import Path
+
+from kaggle_sets.processing.preprocessing.datasplits import CrossValidation
 
 
 class RegressionService:
@@ -21,7 +23,7 @@ class RegressionService:
 
     def train_model(
             self,
-            epochs: int = 300,
+            epochs: int = 150,
             validation_split: float = 0.2,
             metrics=(MetricsEnum.MEAN_SQUARED_ERROR.value, MetricsEnum.MEAN_ABSOLUTE_ERROR.value),
             plot_history=True
@@ -38,6 +40,8 @@ class RegressionService:
 
         if plot_history:
             plot_loss_history(history)
+            plot_metric_history(history, "mean_absolute_error")
+            plot_metric_history(history, "mean_squared_error")
 
         self.model.save(self.path)
 
@@ -68,7 +72,7 @@ class RegressionService:
 
     def create_train_model(
             self,
-            epochs: int = 300,
+            epochs: int = 150,
             validation_split: float = 0.2,
             metrics=(MetricsEnum.MEAN_SQUARED_ERROR.value, MetricsEnum.MEAN_ABSOLUTE_ERROR.value),
             plot_history=True
