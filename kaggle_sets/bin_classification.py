@@ -4,7 +4,7 @@ from kaggle_sets.processing.functions.metrics import ConfusionMatrix
 
 def train_save_classifier():
     service = ClassifierService()
-    history = service.create_train_model()
+    history = service.create_train_model(epochs=1700)
     metrics = service.test_model()
 
     print(f"| Prediction Accuracy       | {metrics['accuracy']: .3f}")

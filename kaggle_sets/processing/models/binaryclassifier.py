@@ -2,6 +2,7 @@ import numpy as np
 import json
 from kaggle_sets.exceptions.exceptions import ModelParameterError
 from kaggle_sets.processing.functions.loss_functions import LossEnum, LossFunction
+from kaggle_sets.processing.functions.metrics import MetricsEnum
 from kaggle_sets.processing.models.model import Model
 from kaggle_sets.processing.models.optimizers import SGD, Optimizer
 import kaggle_sets.processing.preprocessing.datasplits as ds
@@ -79,21 +80,22 @@ class BinaryClassifier(Model):
             y: np.ndarray,
             epochs: int,
             validation_part: float = 0.2,
-            validation_splitter: ds.DataSplitter = ds.RegularValidation()):
+            validation_splitter: ds.DataSplitter = ds.RegularValidation(),
+            metrics: tuple = ()):
+
         loss = self.optimizer.get_loss_enum()
 
         self._set_scale_data(x)
         x = self._scale_data(x)
 
-        self.history["loss"] = [0] * epochs
-        self.history["val_loss"] = [0] * epochs
+        self.history = BinaryClassifier._get_history(metrics, epochs)
 
         for x_train, x_valid, y_train, y_valid, epoch in validation_splitter(x, y, validation_part, epochs):
             train_loss_value = self.optimizer.optimize(x_train, y_train, self)
             val_loss_value = self._validate(x_valid, y_valid, loss.value)
 
-            self.history["loss"][epoch - 1] = train_loss_value
-            self.history["val_loss"][epoch - 1] = val_loss_value
+            self.update_history(self.history, epoch, train_loss_value, val_loss_value,
+                                metrics, y_train, x_train, y_valid, x_valid)
 
             self.print_fit_progress(epoch, loss.__class__.__name__)
 
@@ -108,14 +110,3 @@ class BinaryClassifier(Model):
         with open(path, 'w') as file:
             json.dump(model_data, file)
 
-    def load(self, path: str):
-        with open(path, 'r') as file:
-            model_data = json.load(file)
-            self.w = np.array(model_data["w"])
-            self.b = model_data["b"]
-
-            self.scalars = []
-            for json_scalar in model_data["scalars"]:
-                self.scalars.append(
-                    scal.create_data_scalar(json_scalar)
-                )

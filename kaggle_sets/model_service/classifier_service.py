@@ -2,9 +2,9 @@ import numpy as np
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 import kaggle_sets.config as conf
-from kaggle_sets.plot.graph_plot import plot_loss_history
+from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
 from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.functions.metrics import Accuracy, ConfusionMatrix, precision, recall, f1
+from kaggle_sets.processing.functions.metrics import Accuracy, ConfusionMatrix, precision, recall, f1, MetricsEnum
 from kaggle_sets.processing.models.binaryclassifier import BinaryClassifier
 from kaggle_sets.processing.models.optimizers import SGD
 import kaggle_sets.processing.preprocessing.data_scalar as scal
@@ -36,19 +36,22 @@ class ClassifierService:
             self,
             epochs: int = 300,
             validation_split: float = 0.2,
-            plot_history=True
+            plot_history=True,
+            metrics=(MetricsEnum.ACCURACY.value, )
     ):
         """
         Trains a model
         :param epochs: number of epochs
         :param validation_split: validation part of dataset
         :param plot_history: set True if you want to plot training history
+        :param metrics: tuple of metrics
         :return: dict - training history
         """
-        history = self.model.fit(self.x_train, self.y_train, epochs, validation_split)
+        history = self.model.fit(self.x_train, self.y_train, epochs, validation_split, metrics=metrics)
 
         if plot_history:
             plot_loss_history(history)
+            plot_metric_history(history, "accuracy")
 
         self.model.save(self.path)
 
