@@ -3,11 +3,11 @@ import numpy as np
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 import kaggle_sets.config as conf
 from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
-from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.functions.metrics import Accuracy, ConfusionMatrix, precision, recall, f1, MetricsEnum
-from kaggle_sets.processing.models.binaryclassifier import BinaryClassifier
-from kaggle_sets.processing.models.optimizers import SGD
-import kaggle_sets.processing.preprocessing.data_scalar as scal
+from kaggle_sets.custom.functions.loss_functions import LossEnum
+from kaggle_sets.custom.functions.metrics import Accuracy, ConfusionMatrix, precision, recall, f1, MetricsEnum
+from kaggle_sets.custom.models.binaryclassifier import BinaryClassifier
+from kaggle_sets.custom.models.optimizers import SGD
+import kaggle_sets.custom.preprocessing.data_scalar as scal
 from pathlib import Path
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt

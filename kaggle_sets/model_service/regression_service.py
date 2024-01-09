@@ -2,15 +2,15 @@ import numpy as np
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
-from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.functions.metrics import MetricsEnum, MSE, MAE, R2
-from kaggle_sets.processing.models.lin_regressor import LinRegressor
-from kaggle_sets.processing.models.optimizers import SGD
-from kaggle_sets.processing.preprocessing import data_scalar as scal
+from kaggle_sets.custom.functions.loss_functions import LossEnum
+from kaggle_sets.custom.functions.metrics import MetricsEnum, MSE, MAE, R2
+from kaggle_sets.custom.models.lin_regressor import LinRegressor
+from kaggle_sets.custom.models.optimizers import SGD
+from kaggle_sets.custom.preprocessing import data_scalar as scal
 import kaggle_sets.config as conf
 from pathlib import Path
 
-from kaggle_sets.processing.preprocessing.datasplits import CrossValidation
+from kaggle_sets.custom.preprocessing.datasplits import CrossValidation
 
 
 class RegressionService:

@@ -3,7 +3,7 @@ from abc import abstractmethod
 
 import numpy as np
 
-from kaggle_sets.processing.preprocessing.data_scalar import create_data_scalar
+from kaggle_sets.custom.preprocessing.data_scalar import create_data_scalar
 
 
 class Model:

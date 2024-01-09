@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.models.model import Model
+from kaggle_sets.custom.functions.loss_functions import LossEnum
+from kaggle_sets.custom.models.model import Model
 
 
 class Optimizer(ABC):
