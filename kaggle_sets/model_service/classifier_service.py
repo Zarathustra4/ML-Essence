@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 import kaggle_sets.config as conf
@@ -144,9 +145,9 @@ class ClassifierService:
 
         return self.model.predict(x)
 
-    def predict_by_csv(self, filename: str, delimeter: str = ",") -> np.ndarray:
-        caster = DatasetToNumpy(filename, csv_delimeter=delimeter)
-        (x, _), _ = caster(drop_list=[], y_column="is_safe", test_size=0)
+    def predict_by_csv(self, path: str) -> np.ndarray:
+        df = pd.read_csv(path)
+        x = df.to_numpy()
 
         return self.model.predict(x).round()
 
