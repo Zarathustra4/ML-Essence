@@ -65,8 +65,10 @@ class ForecastService:
         return self.model.forecast(series, plot_forecast=plot_forecast, n_steps=ahead_steps)
 
 
-if __name__ == "__main__":
+def train_save_forecaster():
     service = ForecastService()
-    prediction = service.predict_by_csv("daily-min-temperatures")
-    print(f"10 first predictions - {prediction[:10]}")
-    print(f"Shape of prediction {prediction.shape}")
+    service.reset_model()
+    service.train_model(epochs=40)
+
+    print("| --- Testing model --- |")
+    print(service.test_model())

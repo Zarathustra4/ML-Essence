@@ -37,7 +37,7 @@ class ClassifierService:
             epochs: int = 300,
             validation_split: float = 0.2,
             plot_history=True,
-            metrics=(MetricsEnum.ACCURACY.value, )
+            metrics=(MetricsEnum.ACCURACY.value,)
     ):
         """
         Trains a model
@@ -151,10 +151,16 @@ class ClassifierService:
         return self.model.predict(x).round()
 
 
-if __name__ == "__main__":
+def train_save_classifier():
     service = ClassifierService()
+    history = service.create_train_model(epochs=1700)
+    metrics = service.test_model()
 
-    prediction = service.predict_by_csv("water-quality")
+    print(f"| Prediction Accuracy       | {metrics['accuracy']: .3f}")
+    print(f"| Final Loss                | {history['loss'][-1][0]: .3f}")
+    print(f"| Precision                 | {metrics['precision']: .3f}")
+    print(f"| Recall                    | {metrics['recall']: .3f}")
+    print(f"| F1                        | {metrics['f1']: .3f}")
+    print(f"| Area under the roc curve  | {metrics['auc']: .3f}")
 
-    print(f"10 first predictions - {prediction[:10]}")
-    print(f"Shape of prediction {prediction.shape}")
+    ConfusionMatrix.print_matrix(metrics['confusion'])

@@ -1,9 +1,9 @@
 from enum import Enum
 
-from kaggle_sets.time_series_forecasting import train_save_forecaster
-from kaggle_sets.clusterer import train_save_clusterer
-from lin_regression import train_save_regressor
-from bin_classification import train_save_classifier
+from model_service.classifier_service import train_save_classifier
+from model_service.clusterer_service import train_save_clusterer
+from model_service.forecast_service import train_save_forecaster
+from model_service.regression_service import train_save_regressor
 
 
 # TODO: rename "kaggle_sets" module
@@ -28,4 +28,3 @@ def main(mode: Mode):
 
 if __name__ == "__main__":
     main(mode=Mode.BINARY_CLASSIFICATION)
-

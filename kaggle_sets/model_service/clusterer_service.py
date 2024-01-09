@@ -76,6 +76,10 @@ class ClustererService:
         return clustered_data
 
 
-if __name__ == "__main__":
+def train_save_clusterer():
     cluster_service = ClustererService(n_clusters=2)
-    cluster_service.run_cluster_analysis()
+    preprocessed_data = cluster_service.run_cluster_analysis()
+
+    print("| --- Cluster Analysis --- |")
+    print(f"Clusters: {cluster_service.get_clusters()}")
+

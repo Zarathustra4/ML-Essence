@@ -3,7 +3,6 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.decomposition import PCA
 import kaggle_sets.config as conf
 
-
 def parse_data(filename=conf.CLUSTER_DATASET_PATH):
     data = pd.read_csv(filename, delimiter=",")
     return data

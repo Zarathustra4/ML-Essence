@@ -122,10 +122,13 @@ class RegressionService:
         return self.model.predict(x)
 
 
-if __name__ == "__main__":
+def train_save_regressor():
     service = RegressionService()
 
-    prediction = service.predict_by_csv("mosquito-indicator")
-    print(f"10 first predictions - {prediction[:10]}")
-    print(f"Shape of prediction {prediction.shape}")
+    history = service.create_train_model()
+    metrics = service.test_model()
 
+    print(f"| Prediction Mean Squared Error | {metrics['mae'][0]: .2f}")
+    print(f"| Prediction R Squared          | {metrics['r2']: .2f}")
+    print(f"| Prediction Mean Squared Error | {metrics['mse']: .2f}")
+    print(f"| Final Mean Absolute Error     | {history['mean_absolute_error'][-1][0]: .2f}")
