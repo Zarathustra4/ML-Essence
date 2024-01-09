@@ -66,4 +66,4 @@ class Forecaster:
         if plot_forecast:
             graph_plot.plot_forecast(series, predictions, zoom)
 
-        return np.array(predictions)
+        return predictions

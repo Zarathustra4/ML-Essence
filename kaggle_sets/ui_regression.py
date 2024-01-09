@@ -3,8 +3,8 @@ import numpy as np
 from model_service.regression_service import RegressionService
 import streamlit as st
 import pandas as pd
-from os import makedirs, path
-import kaggle_sets.config as conf
+from os import path
+import config as conf
 
 UPLOADED_PATH = path.join(conf.BASE_DATASET_PATH, "tmp", "uploaded.csv")
 
