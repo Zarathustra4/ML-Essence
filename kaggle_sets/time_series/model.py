@@ -3,7 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import kaggle_sets.config as conf
 from pathlib import Path
-
+from kaggle_sets.plot import graph_plot
 
 class Forecaster:
     def __init__(self):
@@ -38,20 +38,6 @@ class Forecaster:
 
         return model
 
-    @staticmethod
-    def plot_forecast(series, forecast, zoom=True):
-        if zoom:
-            series = series[-len(forecast):]
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(len(series)), series, label='Original Series')
-        plt.plot(range(len(series), len(series) + len(forecast)), forecast, label='Forecasted Values')
-        plt.xlabel('Time Steps')
-        plt.ylabel('Values')
-        plt.title('Time Series Forecasting')
-        plt.legend()
-        plt.show()
-
     def reset_model(self):
         self.model = Forecaster.get_untrained_model()
 
@@ -78,6 +64,6 @@ class Forecaster:
             predictions.append(next_step[0, 0])
 
         if plot_forecast:
-            Forecaster.plot_forecast(series, predictions, zoom)
+            graph_plot.plot_forecast(series, predictions, zoom)
 
         return np.array(predictions)

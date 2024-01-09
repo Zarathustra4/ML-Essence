@@ -22,6 +22,15 @@ def plot_metric_history(history: dict, metric_name: str = "mse"):
     plt.show()
 
 
-def plot_time_series(x, y):
-    plt.plot(x, y)
+def plot_forecast(series, forecast, zoom=True):
+    if zoom:
+        series = series[-len(forecast):]
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(len(series)), series, label='Original Series')
+    plt.plot(range(len(series), len(series) + len(forecast)), forecast, label='Forecasted Values')
+    plt.xlabel('Time Steps')
+    plt.ylabel('Values')
+    plt.title('Time Series Forecasting')
+    plt.legend()
     plt.show()
