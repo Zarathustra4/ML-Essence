@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
@@ -116,9 +117,9 @@ class RegressionService:
         return self.model.predict(x)
 
     def predict_by_csv(self, filename: str, delimeter: str = ","):
-        caster = DatasetToNumpy(filename, csv_delimeter=delimeter)
-        (x, _), _ = caster(["date"], y_column="mosquito_Indicator", test_size=0)
-
+        df = pd.read_csv(filename)
+        df = df.drop("date", axis=1)
+        x = df.to_numpy()
         return self.model.predict(x)
 
 

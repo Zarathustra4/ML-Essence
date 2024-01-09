@@ -20,13 +20,12 @@ def get_column_order(df: pd.DataFrame, first_col: str):
 
 
 def interface():
-    st.title("Binary Classificator Interface")
+    st.title("Water safety prediction")
     st.divider()
 
     uploaded_file = st.file_uploader("Upload CSV")
 
     if uploaded_file is not None:
-        makedirs(conf.BASE_DATASET_PATH, exist_ok=True)
         with open(UPLOADED_PATH, "wb") as file:
             file.write(uploaded_file.read())
 

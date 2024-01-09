@@ -1,38 +1,46 @@
+import numpy as np
+
 from model_service.regression_service import RegressionService
 import streamlit as st
 import pandas as pd
 from os import makedirs, path
+import kaggle_sets.config as conf
+
+UPLOADED_PATH = path.join(conf.BASE_DATASET_PATH, "tmp", "uploaded.csv")
+
+
+def prediction_to_user_data(prediction: np.ndarray) -> list:
+    return list(map(lambda x: int(x[0]) if x[0] > 0 else 0, prediction))
+
+
+def get_column_order(df: pd.DataFrame, first_col: str):
+    columns = df.columns.tolist()
+    columns.remove(first_col)
+    return (first_col,) + tuple(columns)
 
 
 def interface():
-    st.title("Linear Regression Interface")
+    st.title("Mosquito count prediction")
     st.divider()
 
     uploaded_file = st.file_uploader("Upload CSV")
 
     if uploaded_file is not None:
-        makedirs("kaggle_sets\datasets", exist_ok=True)
-        file_path = path.join("kaggle_sets\datasets", "uploaded.csv")
-        with open(file_path, "wb") as file:
+        with open(UPLOADED_PATH, "wb") as file:
             file.write(uploaded_file.read())
 
-        dataframe = pd.read_csv("kaggle_sets/datasets/uploaded.csv", delimiter=",")
+        dataframe = pd.read_csv(UPLOADED_PATH, delimiter=",")
         st.write(dataframe)
         st.divider()
-        
-        prediction = service.predict_by_csv("uploaded")
-        df = pd.DataFrame(prediction, columns=['Predicted Values'])
+
+        prediction = service.predict_by_csv(UPLOADED_PATH)
+        dataframe["mosquito indicator"] = prediction_to_user_data(prediction)
         st.title("Prediction Visualization")
-        st.line_chart(df)
+        st.line_chart(dataframe["mosquito indicator"])
         st.divider()
-        st.table(df)
+        st.table(dataframe)
 
 
 if __name__ == "__main__":
     service = RegressionService()
-    #prediction = service.predict_by_csv("mosquito-indicator")
-
-    #print(type(prediction))
-    #print(f"Ten first predictions - {prediction[:10]}")
-    #print(f"Shape of prediction {prediction.shape}")
     interface()
