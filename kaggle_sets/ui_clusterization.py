@@ -23,13 +23,15 @@ def order_cols(df: pd.DataFrame, first_column="Clusters") -> tuple:
     cols.remove(first_column)
     return (first_column, ) + tuple(cols)
 
+
 def interface():
-    st.title("Binary Classificator Interface")
+    st.title("Clustering Model Interface")
     st.divider()
 
     uploaded_file = st.file_uploader("Upload CSV")
 
     if uploaded_file is not None:
+        makedirs(path.join(conf.BASE_DATASET_PATH, "tmp"), exist_ok=True)
         with open(UPDATED_PATH, "wb") as file:
             file.write(uploaded_file.read())
 

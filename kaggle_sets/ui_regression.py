@@ -3,7 +3,7 @@ import numpy as np
 from model_service.regression_service import RegressionService
 import streamlit as st
 import pandas as pd
-from os import path
+from os import path, makedirs
 import config as conf
 
 UPLOADED_PATH = path.join(conf.BASE_DATASET_PATH, "tmp", "uploaded.csv")
@@ -26,6 +26,7 @@ def interface():
     uploaded_file = st.file_uploader("Upload CSV")
 
     if uploaded_file is not None:
+        makedirs(path.join(conf.BASE_DATASET_PATH, "tmp"), exist_ok=True)
         with open(UPLOADED_PATH, "wb") as file:
             file.write(uploaded_file.read())
 

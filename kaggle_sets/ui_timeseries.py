@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 
 import streamlit as st
-from os import path
+from os import path, makedirs
 import config as conf
 import pandas as pd
 
@@ -26,6 +26,7 @@ def interface():
     uploaded_file = st.file_uploader("Upload CSV")
 
     if uploaded_file is not None:
+        makedirs(path.join(conf.BASE_DATASET_PATH, "tmp"), exist_ok=True)
         with open(UPLOADED_PATH, "wb") as file:
             file.write(uploaded_file.read())
 
