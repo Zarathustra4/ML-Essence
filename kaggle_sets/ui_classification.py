@@ -37,7 +37,7 @@ def interface():
 
         dataframe["is safe"] = prediction_to_safety(prediction)
 
-        st.write("Prediction")
+        st.title("Prediction")
         st.dataframe(dataframe, column_order=get_column_order(dataframe, "is safe"))
 
 

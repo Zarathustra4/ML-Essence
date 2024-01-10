@@ -21,9 +21,8 @@ class ClustererService:
         return clustered_data
 
     def cluster_data_by_csv(self, filename, delimiter=","):
-        filename = os.path.join(conf.BASE_DATASET_PATH, filename + ".csv")
         data = pd.read_csv(filename, delimiter=delimiter)
-        data = drop_columns(data)
+        data = data.drop(['Unnamed: 0', 'id'], axis=1)
         data = data.dropna()
         data = encode_categorical(data)
         scaled_data = scale_data(data)

@@ -30,10 +30,16 @@ def interface():
             file.write(uploaded_file.read())
 
         dataframe = pd.read_csv(UPLOADED_PATH, delimiter=",")
+
+        steps = int(st.number_input("Input number of prediction steps"))
+
         st.write(dataframe)
         st.divider()
 
-        prediction = service.predict_by_csv(UPLOADED_PATH)
+        st.title("Series visualization")
+        st.line_chart(dataframe, x="Date", y="Temp")
+
+        prediction = service.predict_by_csv(UPLOADED_PATH, ahead_steps=steps)
 
         final_df = extend_df(dataframe, prediction)
 
