@@ -39,7 +39,7 @@ def interface():
         st.title("Prediction Visualization")
         st.line_chart(dataframe["mosquito indicator"])
         st.divider()
-        st.table(dataframe)
+        st.dataframe(dataframe)
 
 
 if __name__ == "__main__":
