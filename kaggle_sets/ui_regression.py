@@ -20,7 +20,7 @@ def get_column_order(df: pd.DataFrame, first_col: str):
 
 
 def interface():
-    st.title("Mosquito count prediction")
+    st.title("Mosquito count prediction (Regression)")
     st.divider()
 
     uploaded_file = st.file_uploader("Upload CSV")
