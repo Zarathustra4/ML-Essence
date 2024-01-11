@@ -1,14 +1,17 @@
 import numpy as np
+import pandas as pd
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
-from kaggle_sets.plot.graph_plot import plot_loss_history
-from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.functions.metrics import MetricsEnum, MSE, MAE, R2
-from kaggle_sets.processing.models.lin_regressor import LinRegressor
-from kaggle_sets.processing.models.optimizers import SGD
-from kaggle_sets.processing.preprocessing import data_scalar as scal
+from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
+from kaggle_sets.custom.functions.loss_functions import LossEnum
+from kaggle_sets.custom.functions.metrics import MetricsEnum, MSE, MAE, R2
+from kaggle_sets.custom.models.lin_regressor import LinRegressor
+from kaggle_sets.custom.models.optimizers import SGD
+from kaggle_sets.custom.preprocessing import data_scalar as scal
 import kaggle_sets.config as conf
 from pathlib import Path
+
+from kaggle_sets.custom.preprocessing.datasplits import CrossValidation
 
 
 class RegressionService:
@@ -21,7 +24,7 @@ class RegressionService:
 
     def train_model(
             self,
-            epochs: int = 300,
+            epochs: int = 150,
             validation_split: float = 0.2,
             metrics=(MetricsEnum.MEAN_SQUARED_ERROR.value, MetricsEnum.MEAN_ABSOLUTE_ERROR.value),
             plot_history=True
@@ -38,6 +41,8 @@ class RegressionService:
 
         if plot_history:
             plot_loss_history(history)
+            plot_metric_history(history, "mean_absolute_error")
+            plot_metric_history(history, "mean_squared_error")
 
         self.model.save(self.path)
 
@@ -68,7 +73,7 @@ class RegressionService:
 
     def create_train_model(
             self,
-            epochs: int = 300,
+            epochs: int = 150,
             validation_split: float = 0.2,
             metrics=(MetricsEnum.MEAN_SQUARED_ERROR.value, MetricsEnum.MEAN_ABSOLUTE_ERROR.value),
             plot_history=True
@@ -112,16 +117,19 @@ class RegressionService:
         return self.model.predict(x)
 
     def predict_by_csv(self, filename: str, delimeter: str = ","):
-        caster = DatasetToNumpy(filename, csv_delimeter=delimeter)
-        (x, _), _ = caster(["date"], y_column="mosquito_Indicator", test_size=0)
-
+        df = pd.read_csv(filename)
+        df = df.drop("date", axis=1)
+        x = df.to_numpy()
         return self.model.predict(x)
 
 
-if __name__ == "__main__":
+def train_save_regressor():
     service = RegressionService()
 
-    prediction = service.predict_by_csv("mosquito-indicator")
-    print(f"10 first predictions - {prediction[:10]}")
-    print(f"Shape of prediction {prediction.shape}")
+    history = service.create_train_model()
+    metrics = service.test_model()
 
+    print(f"| Prediction Mean Squared Error | {metrics['mae'][0]: .2f}")
+    print(f"| Prediction R Squared          | {metrics['r2']: .2f}")
+    print(f"| Prediction Mean Squared Error | {metrics['mse']: .2f}")
+    print(f"| Final Mean Absolute Error     | {history['mean_absolute_error'][-1][0]: .2f}")

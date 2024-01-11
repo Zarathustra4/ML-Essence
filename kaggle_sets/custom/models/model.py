@@ -1,9 +1,13 @@
-from abc import ABC, abstractmethod
+import json
+from abc import abstractmethod
 
 import numpy as np
 
+from kaggle_sets.custom.preprocessing.data_scalar import create_data_scalar
 
-class Model(ABC):
+
+class Model:
+
     @abstractmethod
     def forward_prop(self, x):
         """
@@ -65,9 +69,43 @@ class Model(ABC):
         :return:
         """
 
-    @abstractmethod
+    @staticmethod
+    def _get_history(metrics: tuple, epochs: int) -> dict:
+        history = {"loss": [0] * epochs, "val_loss": [0] * epochs}
+
+        metric_names = [metric.name for metric in metrics]
+        history.update({f"{metric_name}": [0] * epochs for metric_name in metric_names})
+        history.update({f"val_{metric_name}": [0] * epochs for metric_name in metric_names})
+
+        return history
+
+    def update_history(self, history: dict, epoch: int, train_loss_value, val_loss_value, metrics, y_train, x_train,
+                       y_valid, x_valid):
+        history["loss"][epoch - 1] = train_loss_value
+        history["val_loss"][epoch - 1] = val_loss_value
+
+        for metric in metrics:
+            train_metric_value = metric(y_train, self.predict(x_train))
+            val_metric_value = metric(y_valid, self.predict(x_valid))
+            metric_name = metric.name
+
+            history[f"{metric_name}"][epoch - 1] = train_metric_value
+            history[f"val_{metric_name}"][epoch - 1] = val_metric_value
+
+        return history
+
     def load(self, path: str):
         """
         Loads model from a given file location
         :return: None
         """
+        with open(path, 'r') as file:
+            model_data = json.load(file)
+            self.w = np.array(model_data["w"])
+            self.b = model_data["b"]
+
+            self.scalars = []
+            for json_scalar in model_data["scalars"]:
+                self.scalars.append(
+                    create_data_scalar(json_scalar)
+                )

@@ -1,5 +1,3 @@
-import os.path
-
 from kaggle_sets.time_series.model import Forecaster
 import kaggle_sets.time_series.data_preparation as dp
 import matplotlib.pyplot as plt
@@ -60,13 +58,14 @@ class ForecastService:
         return self.model.forecast(series, ahead_steps)
 
     def predict_by_csv(self, filename, ahead_steps=conf.TS_WINDOW_SIZE, delimeter=",", plot_forecast: bool = True):
-        filename = os.path.join(conf.BASE_DATASET_PATH, filename + ".csv")
         series = pd.read_csv(filename, delimiter=delimeter)["Temp"].to_numpy()
         return self.model.forecast(series, plot_forecast=plot_forecast, n_steps=ahead_steps)
 
 
-if __name__ == "__main__":
+def train_save_forecaster():
     service = ForecastService()
-    prediction = service.predict_by_csv("daily-min-temperatures")
-    print(f"10 first predictions - {prediction[:10]}")
-    print(f"Shape of prediction {prediction.shape}")
+    service.reset_model()
+    service.train_model(epochs=40)
+
+    print("| --- Testing model --- |")
+    print(service.test_model())

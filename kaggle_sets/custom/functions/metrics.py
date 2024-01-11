@@ -46,7 +46,7 @@ class Accuracy(Metric):
     """ Accuracy Metric"""
 
     def _metric(self, prediction: np.ndarray, y: np.ndarray):
-        correct_predictions = np.sum(prediction.round() == y)
+        correct_predictions = np.sum(prediction.round() == y.round())
         total_predictions = len(y)
         accuracy = correct_predictions / total_predictions if total_predictions > 0 else 0.0
         return accuracy

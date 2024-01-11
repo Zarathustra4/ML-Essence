@@ -1,13 +1,14 @@
 import numpy as np
+import pandas as pd
 
 from kaggle_sets.data_preparation.dataset_to_numpy import DatasetToNumpy
 import kaggle_sets.config as conf
-from kaggle_sets.plot.graph_plot import plot_loss_history
-from kaggle_sets.processing.functions.loss_functions import LossEnum
-from kaggle_sets.processing.functions.metrics import Accuracy, ConfusionMatrix, precision, recall, f1
-from kaggle_sets.processing.models.binaryclassifier import BinaryClassifier
-from kaggle_sets.processing.models.optimizers import SGD
-import kaggle_sets.processing.preprocessing.data_scalar as scal
+from kaggle_sets.plot.graph_plot import plot_loss_history, plot_metric_history
+from kaggle_sets.custom.functions.loss_functions import LossEnum
+from kaggle_sets.custom.functions.metrics import Accuracy, ConfusionMatrix, precision, recall, f1, MetricsEnum
+from kaggle_sets.custom.models.binaryclassifier import BinaryClassifier
+from kaggle_sets.custom.models.optimizers import SGD
+import kaggle_sets.custom.preprocessing.data_scalar as scal
 from pathlib import Path
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
@@ -36,19 +37,22 @@ class ClassifierService:
             self,
             epochs: int = 300,
             validation_split: float = 0.2,
-            plot_history=True
+            plot_history=True,
+            metrics=(MetricsEnum.ACCURACY.value,)
     ):
         """
         Trains a model
         :param epochs: number of epochs
         :param validation_split: validation part of dataset
         :param plot_history: set True if you want to plot training history
+        :param metrics: tuple of metrics
         :return: dict - training history
         """
-        history = self.model.fit(self.x_train, self.y_train, epochs, validation_split)
+        history = self.model.fit(self.x_train, self.y_train, epochs, validation_split, metrics=metrics)
 
         if plot_history:
             plot_loss_history(history)
+            plot_metric_history(history, "accuracy")
 
         self.model.save(self.path)
 
@@ -141,17 +145,23 @@ class ClassifierService:
 
         return self.model.predict(x)
 
-    def predict_by_csv(self, filename: str, delimeter: str = ",") -> np.ndarray:
-        caster = DatasetToNumpy(filename, csv_delimeter=delimeter)
-        (x, _), _ = caster(drop_list=[], y_column="is_safe", test_size=0)
+    def predict_by_csv(self, path: str) -> np.ndarray:
+        df = pd.read_csv(path)
+        x = df.to_numpy()
 
         return self.model.predict(x).round()
 
 
-if __name__ == "__main__":
+def train_save_classifier():
     service = ClassifierService()
+    history = service.create_train_model(epochs=1700)
+    metrics = service.test_model()
 
-    prediction = service.predict_by_csv("water-quality")
+    print(f"| Prediction Accuracy       | {metrics['accuracy']: .3f}")
+    print(f"| Final Loss                | {history['loss'][-1][0]: .3f}")
+    print(f"| Precision                 | {metrics['precision']: .3f}")
+    print(f"| Recall                    | {metrics['recall']: .3f}")
+    print(f"| F1                        | {metrics['f1']: .3f}")
+    print(f"| Area under the roc curve  | {metrics['auc']: .3f}")
 
-    print(f"10 first predictions - {prediction[:10]}")
-    print(f"Shape of prediction {prediction.shape}")
+    ConfusionMatrix.print_matrix(metrics['confusion'])

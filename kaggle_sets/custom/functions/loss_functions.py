@@ -3,7 +3,7 @@ from abc import abstractmethod
 import numpy as np
 from enum import Enum
 
-from kaggle_sets.processing.functions.activations import Sigmoid
+from kaggle_sets.custom.functions.activations import Sigmoid
 
 
 class LossFunction:
