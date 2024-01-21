@@ -1,5 +1,5 @@
 from sklearn.cluster import AgglomerativeClustering
-from kaggle_sets.clustering.data_preparation import preprocess_data
+from clustering.data_preparation import preprocess_data
 import matplotlib.pyplot as plt
 
 

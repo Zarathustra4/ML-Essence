@@ -1,13 +1,13 @@
 import numpy as np
 import json
-from kaggle_sets.exceptions.exceptions import ModelParameterError
-from kaggle_sets.custom.functions.loss_functions import LossEnum, LossFunction
-from kaggle_sets.custom.functions.metrics import MetricsEnum
-from kaggle_sets.custom.models.model import Model
-from kaggle_sets.custom.models.optimizers import SGD, Optimizer
-import kaggle_sets.custom.preprocessing.datasplits as ds
-from kaggle_sets.custom.functions.activations import ActivationFunction, Sigmoid
-import kaggle_sets.custom.preprocessing.data_scalar as scal
+from exceptions.exceptions import ModelParameterError
+from custom.functions.loss_functions import LossEnum, LossFunction
+from custom.functions.metrics import MetricsEnum
+from custom.models.model import Model
+from custom.models.optimizers import SGD, Optimizer
+import custom.preprocessing.datasplits as ds
+from custom.functions.activations import ActivationFunction, Sigmoid
+import custom.preprocessing.data_scalar as scal
 
 
 class BinaryClassifier(Model):

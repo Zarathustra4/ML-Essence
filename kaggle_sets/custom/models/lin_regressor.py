@@ -1,11 +1,11 @@
 import numpy as np
 
-from kaggle_sets.custom.functions.loss_functions import LossEnum, LossFunction
-from kaggle_sets.exceptions.exceptions import ModelParameterError
-from kaggle_sets.custom.models.model import Model
-import kaggle_sets.custom.preprocessing.datasplits as ds
-from kaggle_sets.custom.models.optimizers import SGD, Optimizer
-import kaggle_sets.custom.preprocessing.data_scalar as scal
+from custom.functions.loss_functions import LossEnum, LossFunction
+from exceptions.exceptions import ModelParameterError
+from custom.models.model import Model
+import custom.preprocessing.datasplits as ds
+from custom.models.optimizers import SGD, Optimizer
+import custom.preprocessing.data_scalar as scal
 import json
 
 

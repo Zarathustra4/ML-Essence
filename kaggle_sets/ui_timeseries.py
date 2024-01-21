@@ -5,7 +5,7 @@ from os import path, makedirs
 import config as conf
 import pandas as pd
 
-from kaggle_sets.model_service.forecast_service import ForecastService
+from model_service.forecast_service import ForecastService
 
 UPLOADED_PATH = path.join(conf.BASE_DATASET_PATH, "tmp", "uploaded.csv")
 
