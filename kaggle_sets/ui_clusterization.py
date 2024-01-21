@@ -7,11 +7,6 @@ import config as conf
 
 UPDATED_PATH = path.join(conf.BASE_DATASET_PATH, "tmp", "uploaded.csv")
 
-"""
-TODO: Now PCA is applied in predict_by_csv method. 
-Use it only for plotting. User has to receive updated dataframe
-"""
-
 
 def prediction_to_userdata(prediction):
     clusters = prediction["Clusters"]
