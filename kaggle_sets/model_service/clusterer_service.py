@@ -2,9 +2,9 @@ import os.path
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import kaggle_sets.config as conf
-from kaggle_sets.clustering.model import Clusterer
-from kaggle_sets.clustering.data_preparation import preprocess_data, drop_columns, encode_categorical, scale_data, apply_pca
+import config as conf
+from clustering.model import Clusterer
+from clustering.data_preparation import preprocess_data, drop_columns, encode_categorical, scale_data, apply_pca
 
 
 class ClustererService:

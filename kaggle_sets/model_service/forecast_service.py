@@ -1,9 +1,9 @@
-from kaggle_sets.time_series.model import Forecaster
-import kaggle_sets.time_series.data_preparation as dp
+from time_series.model import Forecaster
+import time_series.data_preparation as dp
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import pandas as pd
-import kaggle_sets.config as conf
+import config as conf
 
 
 class ForecastService:

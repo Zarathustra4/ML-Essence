@@ -1,6 +1,6 @@
 import pandas as pd
 import tensorflow as tf
-import kaggle_sets.config as conf
+import config as conf
 
 
 def parse_data(filename=conf.TS_DATASET_PATH):

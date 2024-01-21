@@ -1,9 +1,9 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-import kaggle_sets.config as conf
+import config as conf
 from pathlib import Path
-from kaggle_sets.plot import graph_plot
+from plot import graph_plot
 
 class Forecaster:
     def __init__(self):

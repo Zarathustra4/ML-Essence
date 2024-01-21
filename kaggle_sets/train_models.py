@@ -30,4 +30,4 @@ def main(*modes):
 
 
 if __name__ == "__main__":
-    main(Mode.LINEAR_REGRESSION, Mode.BINARY_CLASSIFICATION)
+    main(Mode.TRAIN_ALL)
