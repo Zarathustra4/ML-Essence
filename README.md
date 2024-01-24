@@ -2,12 +2,23 @@
 
    # **ML Essence**
 
-   Machine Learning Essence is a niche Python project with educational purposes in both machine and human senses. <br>
+   Machine Learning Essence is a niche Python project with educational purposes in both machine and human senses. <br>   
+   The project contains 4 ML models: regressor, classifier, clustering model, time series forecaster. <br>
+</div>
 
+   To start using it run:
+   - ```streamlit run ui_regression.py``` for regressor
+   - ```streamlit run ui_classification.py``` for classification
+   - ```streamlit run ui_clusterization.py``` for clusterization
+   - ```streamlit run ui_timeseries.py``` for time series forecasting
+
+   <div align="center">
+      
    [![Python](https://img.shields.io/badge/Language-Python-blue?style=plastic)](https://www.python.org/)
 
    ![Screen](https://media.discordapp.net/attachments/1051467735420370944/1178233175915380796/image.png?ex=65756627&is=6562f127&hm=a26583860124c05e6c67d5d79c2224a7efa7fc695e93e119d9b111a896e2027e&=&format=webp)
-</div>
+   
+   </div>
 
 
 # Requirements:
